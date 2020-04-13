@@ -1,7 +1,8 @@
-const pointTypesTransfer = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`];
-const pointTypesActivity = [`check-in`, `sightseeing`, `restaurant`];
-const pointDestinations = [`Moscow`, `Kazan`, `Zelenograd`, `Vladivostok`, `Tver`, `London`, `New-York`, `Paris`];
-const pointDescriptions = [`Lorem ipsum dolor sit amet, consectetur adipiscing elit. `,
+const POINT_TYPES_TRANSFER = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`];
+const POINT_TYPES_ACTIVITY = [`check-in`, `sightseeing`, `restaurant`];
+const POINT_OFFERS_TITLES = [`Rent a car`, `Add luggage`, `Switch to comfort class`, `Add Meal`, `Choose seats`, `Travel by train`];
+const POINT_DESTINATIONS = [`Moscow`, `Kazan`, `Zelenograd`, `Vladivostok`, `Tver`, `London`, `New-York`, `Paris`];
+const POINT_DESCRIPTIONS = [`Lorem ipsum dolor sit amet, consectetur adipiscing elit. `,
   `Cras aliquet varius magna, non porta ligula feugiat eget. `,
   `Fusce tristique felis at fermentum pharetra. `,
   `Aliquam id orci ut lectus varius viverra. `,
@@ -15,32 +16,32 @@ const pointDescriptions = [`Lorem ipsum dolor sit amet, consectetur adipiscing e
 const pointOffers = [{
   type: `drive`,
   title: `Rent a car`,
-  price: 100,
+  price: Math.floor((Math.random() * 20)) * 5,
   isChecked: Math.random() > 0.7 ? true : false,
 }, {
   type: `flight`,
   title: `Add luggage`,
-  price: 30,
+  price: Math.floor((Math.random() * 20)) * 5,
   isChecked: Math.random() > 0.7 ? true : false,
 }, {
   type: `flight`,
   title: `Switch to comfort class`,
-  price: 100,
+  price: Math.floor((Math.random() * 20)) * 5,
   isChecked: Math.random() > 0.7 ? true : false,
 }, {
   type: `check-in`,
   title: `Add Meal`,
-  price: 15,
+  price: Math.floor((Math.random() * 20)) * 5,
   isChecked: Math.random() > 0.7 ? true : false,
 }, {
   type: `train`,
   title: `Choose seats`,
-  price: 5,
+  price: Math.floor((Math.random() * 20)) * 5,
   isChecked: Math.random() > 0.7 ? true : false,
 }, {
   type: `transport`,
   title: `Travel by train`,
-  price: 40,
+  price: Math.floor((Math.random() * 20)) * 5,
   isChecked: Math.random() > 0.7 ? true : false,
 }];
 const MONTH_NAMES = [
@@ -57,4 +58,4 @@ const MONTH_NAMES = [
   `Nov`,
   `Dec`,
 ];
-export {pointTypesTransfer, pointTypesActivity, pointDestinations, pointDescriptions, pointOffers, MONTH_NAMES};
+export {POINT_TYPES_TRANSFER, POINT_TYPES_ACTIVITY, POINT_OFFERS_TITLES, POINT_DESTINATIONS, POINT_DESCRIPTIONS, pointOffers, MONTH_NAMES};

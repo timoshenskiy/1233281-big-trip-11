@@ -1,5 +1,9 @@
 import {MONTH_NAMES} from './const.js';
 
+const getRandomIntegerNumber = (min, max) => {
+  return min + Math.floor(Math.random() * (max - min));
+};
+
 const makeFirstSymbolUppercase = (string) => {
   string = string[0].toUpperCase() + string.slice(1);
   return string;
@@ -24,13 +28,13 @@ const formatTimeforInput = (date) => {
   const minute = castTimeFormat(date.getMinutes());
   return `${day}/${month}/${year} ${hour}:${minute}`;
 };
-const formatTimeforDatetime = (date) => {
+const formatTimeforDatetime = (date, time = true) => {
   const day = castTimeFormat(date.getDate());
   const month = castTimeFormat(date.getMonth() + 1);
   const year = `${date.getFullYear()}`.substr(2, 4);
   const hour = castTimeFormat(date.getHours());
   const minute = castTimeFormat(date.getMinutes());
-  return `${day}-${month}-${year}T${hour}:${minute}`;
+  return `${day}-${month}-${year}${time ? `T${hour}:${minute}` : ``}`;
 };
 
 const formatDatePeriod = (firstDate, lastDate) => {
@@ -50,6 +54,10 @@ const formatDateDifference = (differenceInMs) => {
 
   return `${days !== 0 ? `${castTimeFormat(days)}D` : ``}  ${(hours !== 0 || days !== 0) ? `${castTimeFormat(hours)}H` : ``} ${(hours !== 0 || days !== 0 || minutes !== 0) ? `${castTimeFormat(minutes)}M` : ``} `;
 };
+const formatDateForPointList = (date) => {
+  const month = MONTH_NAMES[date.getMonth()];
+  const day = castTimeFormat(date.getDate());
+  return `${month} ${day}`;
 
-
-export {makeFirstSymbolUppercase, formatTime, formatDatePeriod, formatDateDifference, formatTimeforInput, formatTimeforDatetime};
+};
+export {getRandomIntegerNumber, makeFirstSymbolUppercase, formatTime, formatDatePeriod, formatDateDifference, formatDateForPointList, formatTimeforInput, formatTimeforDatetime};

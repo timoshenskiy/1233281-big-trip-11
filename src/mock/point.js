@@ -1,21 +1,19 @@
-import {pointTypesTransfer, pointTypesActivity, pointDestinations, pointDescriptions, pointOffers} from '../const.js';
+import {POINT_TYPES_TRANSFER, POINT_TYPES_ACTIVITY, POINT_DESTINATIONS, POINT_DESCRIPTIONS} from '../const.js';
+import {getRandomIntegerNumber} from '../utils.js';
+import {generatePointOffers} from './offers.js';
 
-
-const getRandomIntegerNumber = (min, max) => {
-  return min + Math.floor(Math.random() * (max - min));
-};
 const generatePointType = () => {
-  const pointTypeArray = Math.random() > 0.5 ? pointTypesTransfer : pointTypesActivity;
+  const pointTypeArray = Math.random() > 0.5 ? POINT_TYPES_TRANSFER : POINT_TYPES_ACTIVITY;
   return pointTypeArray[getRandomIntegerNumber(0, pointTypeArray.length - 1)];
 };
 const findCorrectPrepostion = (pointType) => {
-  return pointTypesTransfer.some((it) => {
+  return POINT_TYPES_TRANSFER.some((it) => {
     return it === pointType;
   }) ? `to` : `in`;
 };
 const generateDepartureDate = () => {
   let departureDate = new Date();
-  departureDate.setMonth(getRandomIntegerNumber(0, 4));
+  departureDate.setMonth(getRandomIntegerNumber(0, 2));
   departureDate.setDate(getRandomIntegerNumber(1, 28));
   departureDate.setHours(getRandomIntegerNumber(0, 23));
   departureDate.setMinutes(getRandomIntegerNumber(0, 11) * 5);
@@ -43,43 +41,49 @@ const generatePointDescription = (count) => {
   let description = ``;
   while (count > 0) {
     count--;
-    description += pointDescriptions[getRandomIntegerNumber(0, pointDescriptions.length - 1)];
+    description += POINT_DESCRIPTIONS[getRandomIntegerNumber(0, POINT_DESCRIPTIONS.length - 1)];
   }
   return description;
 };
-const generateOffers = (maxCount) => {
-  let offers = [];
-  for (const offer of pointOffers) {
+
+const separateOffers = (allOffers) => {
+  let checkedOffers = [];
+  let uncheckedOffers = [];
+  for (const offer of allOffers) {
     if (Math.random() > 0.5) {
-      offers.push(offer);
+      checkedOffers.push(offer);
+    } else {
+      uncheckedOffers.push(offer);
     }
   }
-  return offers.slice(0, maxCount + 1);
+  return [checkedOffers, uncheckedOffers];
 };
 
 
 const generateTravelPoint = () => {
-  const pointType = generatePointType();
+  const type = generatePointType();
   const departureDate = generateDepartureDate();
+  const allPointOffers = generatePointOffers(getRandomIntegerNumber(1, 5));
+  const [checkedPointOffers, uncheckedPointOffers] = separateOffers(allPointOffers);
   return {
-    pointType,
-    preposition: findCorrectPrepostion(pointType),
-    destination: pointDestinations[getRandomIntegerNumber(0, pointDestinations.length)],
+    dayNumber: 0,
+    type,
+    preposition: findCorrectPrepostion(type),
+    destination: POINT_DESTINATIONS[getRandomIntegerNumber(0, POINT_DESTINATIONS.length)],
     departureDate,
     arrivalDate: generateArrivalDate(departureDate),
-    eventPrice: getRandomIntegerNumber(10, 50) * 10,
+    price: getRandomIntegerNumber(10, 50) * 10,
     photos: generatePhotoUrls(getRandomIntegerNumber(1, 6)),
-    pointDescription: generatePointDescription(getRandomIntegerNumber(1, 5)),
-    offers: Math.random() > 0.5 ? generateOffers(5) : [],
+    description: generatePointDescription(getRandomIntegerNumber(1, 5)),
+    checkedOffers: checkedPointOffers,
+    uncheckedOffers: uncheckedPointOffers,
   };
-
-
 };
-
 const generateTravelPoints = (count) => {
   return new Array(count)
     .fill(``)
     .map(generateTravelPoint);
 };
+
 
 export {generateTravelPoints};
