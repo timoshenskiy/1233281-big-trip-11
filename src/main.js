@@ -54,7 +54,6 @@ for (const point of points) {
     render(siteMainElement, createTravelPointListTemplate(dayNumber, point.departureDate), `beforeend`);
   }
   currentDate = point.departureDate;
-  point.dayNumber = dayNumber;
   const pointList = siteMainElement.querySelector(`.trip-days:last-child .trip-events__list`);
 
   render(pointList, createTravelPointTemplate(point), `beforeend`);

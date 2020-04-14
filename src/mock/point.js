@@ -66,7 +66,6 @@ const generateTravelPoint = () => {
   const allPointOffers = generatePointOffers(getRandomIntegerNumber(1, 5));
   const [checkedPointOffers, uncheckedPointOffers] = separateOffers(allPointOffers);
   return {
-    dayNumber: 0,
     type,
     preposition: findCorrectPrepostion(type),
     destination: POINT_DESTINATIONS[getRandomIntegerNumber(0, POINT_DESTINATIONS.length)],
