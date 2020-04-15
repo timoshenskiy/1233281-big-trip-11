@@ -1,4 +1,4 @@
-import {makeFirstSymbolUppercase, formatTime, formatDateDifference, formatTimeforDatetime} from '../utils.js';
+import {createElement, makeFirstSymbolUppercase, formatTime, formatDateDifference, formatTimeforDatetime} from '../utils.js';
 
 const OFFER_VIEW_COUNT = 3;
 const createOffersList = (checkedOffers) => {
@@ -56,4 +56,26 @@ const createTravelPointTemplate = (travelPoint) => {
   );
 };
 
-export {createTravelPointTemplate};
+export default class Point {
+  constructor(travelPoint) {
+    this._travelPoint = travelPoint;
+
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createTravelPointTemplate(this._travelPoint);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
