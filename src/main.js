@@ -9,7 +9,7 @@ import PointComponent from './components/travel-point.js';
 import {generateTravelPoints} from './mock/point.js';
 import {render, RenderPosition} from "./utils.js";
 
-const TRAVEL_POINT_COUNT = 3;
+const TRAVEL_POINT_COUNT = 20;
 
 const points = generateTravelPoints(TRAVEL_POINT_COUNT);
 points.sort((a, b) => {
