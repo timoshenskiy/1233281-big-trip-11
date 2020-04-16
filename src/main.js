@@ -5,6 +5,7 @@ import FilterComponent from './components/filters.js';
 import SortComponent from './components/sorting.js';
 import EditFormComponent from './components/edit-form.js';
 import PointListComponent from './components/travel-point-list.js';
+import NoPointsComponent from './components/no-travel-points.js';
 import PointComponent from './components/travel-point.js';
 import {generateTravelPoints} from './mock/point.js';
 import {render, RenderPosition} from "./utils.js";
@@ -12,6 +13,7 @@ import {render, RenderPosition} from "./utils.js";
 const TRAVEL_POINT_COUNT = 20;
 
 const points = generateTravelPoints(TRAVEL_POINT_COUNT);
+
 points.sort((a, b) => {
   return a.departureDate - b.departureDate;
 });
@@ -48,11 +50,31 @@ const renderPoint = (point, pointList) => {
   const editForm = editFormComponent.getElement();
   const editButton = pointComponent.getElement().querySelector(`button`);
 
-  editButton.addEventListener(`click`, () => {
-    pointList.replaceChild(editForm, pointComponent.getElement());
-  });
-  editForm.addEventListener(`submit`, () => {
+  const replaceEditToPoint = () => {
     pointList.replaceChild(pointComponent.getElement(), editForm);
+  };
+  const replacePointToEdit = () => {
+    pointList.replaceChild(editForm, pointComponent.getElement());
+  };
+
+  const onEscKeyDown = (evt) => {
+    const isEscKey = evt.key === `Escape` || evt.key === `Esc`;
+
+    if (isEscKey) {
+      replaceEditToPoint();
+      document.removeEventListener(`keydown`, onEscKeyDown);
+    }
+  };
+
+  editButton.addEventListener(`click`, () => {
+    replacePointToEdit();
+    document.addEventListener(`keydown`, onEscKeyDown);
+  });
+
+  editForm.addEventListener(`submit`, (evt) => {
+    evt.preventDefault();
+    replaceEditToPoint();
+    document.removeEventListener(`keydown`, onEscKeyDown);
   });
 
   render(pointList, pointComponent.getElement(), RenderPosition.BEFOREEND);
@@ -74,4 +96,9 @@ const renderPointList = (travelPoints) => {
 
   }
 };
-renderPointList(points);
+if (points.length === 0) {
+  render(siteMainElement, new NoPointsComponent().getElement(), RenderPosition.BEFOREEND);
+} else {
+  renderPointList(points);
+}
+
