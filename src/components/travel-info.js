@@ -1,4 +1,4 @@
-import {formatDatePeriod} from '../utils.js';
+import {createElement, formatDatePeriod} from '../utils.js';
 
 const createTravelPointsInfo = (points) => {
   let uniquePoints = [points[0].destination];
@@ -23,4 +23,26 @@ const createTravelInfoTemplate = (points) => {
   );
 };
 
-export {createTravelInfoTemplate};
+export default class PointInfo {
+  constructor(travelPoints) {
+    this._travelPoints = travelPoints;
+
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createTravelInfoTemplate(this._travelPoints);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

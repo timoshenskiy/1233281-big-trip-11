@@ -1,5 +1,5 @@
 import {POINT_TYPES_TRANSFER, POINT_TYPES_ACTIVITY} from '../const.js';
-import {makeFirstSymbolUppercase, formatTimeforInput} from '../utils.js';
+import {createElement, makeFirstSymbolUppercase, formatTimeforInput} from '../utils.js';
 
 const createEventTypeItems = (eventTypes, checkedType) => {
   return eventTypes.map((eventType, index) => {
@@ -39,7 +39,7 @@ const createPhotoMarkup = (photos) => {
 };
 
 
-export const createEditFormTemplate = (travelPoint) => {
+const createEditFormTemplate = (travelPoint) => {
   const {type, preposition, destination, checkedOffers, uncheckedOffers, price, description, photos, departureDate, arrivalDate} = travelPoint;
   const startTime = formatTimeforInput(departureDate);
   const endTime = formatTimeforInput(arrivalDate);
@@ -126,3 +126,28 @@ export const createEditFormTemplate = (travelPoint) => {
           </form>`
   );
 };
+
+
+export default class EditForm {
+  constructor(travelPoint) {
+    this._travelPoint = travelPoint;
+
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createEditFormTemplate(this._travelPoint);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
