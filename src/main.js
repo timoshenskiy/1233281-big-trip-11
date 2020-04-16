@@ -41,10 +41,7 @@ render(filterElement, new FilterComponent().getElement(), RenderPosition.BEFOREE
 const siteMainElement = document.querySelector(`.trip-events`);
 render(siteMainElement, new SortComponent().getElement(), RenderPosition.BEFOREEND);
 
-const renderPoint = (point) => {
-
-  const pointList = siteMainElement.querySelector(`.trip-days:last-child .trip-events__list`);
-
+const renderPoint = (point, pointList) => {
   const editFormComponent = new EditFormComponent(point);
   const pointComponent = new PointComponent(point);
 
@@ -64,14 +61,16 @@ const renderPoint = (point) => {
 const renderPointList = (travelPoints) => {
   let currentDate = travelPoints[0].departureDate;
   let dayNumber = 1;
-  render(siteMainElement, new PointListComponent(dayNumber, travelPoints[0].departureDate).getElement(), RenderPosition.BEFOREEND);
+  let travelPointList = new PointListComponent(dayNumber, travelPoints[0].departureDate);
+  render(siteMainElement, travelPointList.getElement(), RenderPosition.BEFOREEND);
   for (const travelPoint of travelPoints) {
     if (!(currentDate.getMonth() === travelPoint.departureDate.getMonth() && currentDate.getDate() === travelPoint.departureDate.getDate())) {
       dayNumber++;
-      render(siteMainElement, new PointListComponent(dayNumber, travelPoint.departureDate).getElement(), RenderPosition.BEFOREEND);
+      travelPointList = new PointListComponent(dayNumber, travelPoint.departureDate);
+      render(siteMainElement, travelPointList.getElement(), RenderPosition.BEFOREEND);
     }
     currentDate = travelPoint.departureDate;
-    renderPoint(travelPoint);
+    renderPoint(travelPoint, travelPointList.getPlaceForPoint());
 
   }
 };

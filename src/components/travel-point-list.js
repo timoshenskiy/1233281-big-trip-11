@@ -36,6 +36,9 @@ export default class PointList {
 
     return this._element;
   }
+  getPlaceForPoint() {
+    return this.getElement().querySelector(`.trip-events__list`);
+  }
 
   removeElement() {
     this._element = null;
