@@ -11,12 +11,14 @@ const createTravelPointsInfo = (points) => {
 
 };
 const createTravelInfoTemplate = (points) => {
+  const pointsInfo = (points.length > 0) ? createTravelPointsInfo(points) : ``;
+  const datePeriodInfo = (points.length > 0) ? formatDatePeriod(points[0].departureDate, points[points.length - 1].arrivalDate) : ``;
   return (
     `<section class="trip-main__trip-info  trip-info">
             <div class="trip-info__main">
-              <h1 class="trip-info__title">${createTravelPointsInfo(points)}</h1>
+              <h1 class="trip-info__title">${pointsInfo}</h1>
 
-              <p class="trip-info__dates">${formatDatePeriod(points[0].departureDate, points[points.length - 1].arrivalDate)}</p>
+              <p class="trip-info__dates">${datePeriodInfo}</p>
             </div>
 
      </section>`
