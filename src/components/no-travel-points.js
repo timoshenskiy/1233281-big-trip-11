@@ -10,7 +10,7 @@ const createEmptyPointListTemplate = () => {
   );
 };
 
-export default class NoPoints extends AbstractComponent{
+export default class NoPoints extends AbstractComponent {
   getTemplate() {
     return createEmptyPointListTemplate();
   }

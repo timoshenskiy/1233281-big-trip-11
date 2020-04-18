@@ -135,8 +135,11 @@ export default class EditForm extends AbstractComponent {
 
     this._travelPoint = travelPoint;
   }
-  
+
   getTemplate() {
     return createEditFormTemplate(this._travelPoint);
+  }
+  setSubmitHandler(handler) {
+    this.getElement().addEventListener(`submit`, handler);
   }
 }

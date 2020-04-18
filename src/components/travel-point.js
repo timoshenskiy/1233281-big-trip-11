@@ -57,7 +57,7 @@ const createTravelPointTemplate = (travelPoint) => {
   );
 };
 
-export default class Point extends AbstractComponent{
+export default class Point extends AbstractComponent {
   constructor(travelPoint) {
     super();
 
@@ -66,5 +66,9 @@ export default class Point extends AbstractComponent{
 
   getTemplate() {
     return createTravelPointTemplate(this._travelPoint);
+  }
+  setEditButtonClickHandler(handler) {
+    this.getElement().querySelector(`button`)
+      .addEventListener(`click`, handler);
   }
 }
