@@ -1,4 +1,5 @@
-import {createElement, formatDatePeriod} from '../utils.js';
+import {formatDatePeriod} from '../utils/common.js';
+import AbstractComponent from './abstract-component.js';
 
 const createTravelPointsInfo = (points) => {
   let uniquePoints = [points[0].destination];
@@ -25,26 +26,13 @@ const createTravelInfoTemplate = (points) => {
   );
 };
 
-export default class PointInfo {
+export default class PointInfo extends AbstractComponent{
   constructor(travelPoints) {
+    super();
+
     this._travelPoints = travelPoints;
-
-    this._element = null;
   }
-
   getTemplate() {
     return createTravelInfoTemplate(this._travelPoints);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

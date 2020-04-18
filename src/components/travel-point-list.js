@@ -1,4 +1,5 @@
-import {createElement, formatTimeforDatetime, formatDateForPointList} from '../utils.js';
+import {formatTimeforDatetime, formatDateForPointList} from '../utils/common.js';
+import AbstractComponent from './abstract-component.js';
 
 const createTravelPointListTemplate = (number, date) => {
   const datetime = formatTimeforDatetime(date, false);
@@ -18,29 +19,18 @@ const createTravelPointListTemplate = (number, date) => {
   );
 };
 
-export default class PointList {
+export default class PointList extends AbstractComponent{
   constructor(number, date) {
+    super();
+
     this._number = number;
     this._date = date;
-    this._element = null;
   }
 
   getTemplate() {
     return createTravelPointListTemplate(this._number, this._date);
   }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
   getPlaceForPoint() {
     return this.getElement().querySelector(`.trip-events__list`);
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

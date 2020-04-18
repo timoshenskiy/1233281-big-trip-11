@@ -1,5 +1,5 @@
 import {POINT_TYPES_TRANSFER, POINT_TYPES_ACTIVITY, POINT_OFFERS_TITLES} from '../const.js';
-import {getRandomIntegerNumber} from '../utils.js';
+import {getRandomIntegerNumber} from '../utils/common.js';
 
 const generatePointOffer = () => {
   const pointTypes = Math.random() > 0.5 ? POINT_TYPES_TRANSFER : POINT_TYPES_ACTIVITY;
