@@ -57,7 +57,7 @@ const createTravelPointTemplate = (travelPoint) => {
   );
 };
 
-export default class Point extends AbstractComponent {
+export default class TravelPoint extends AbstractComponent {
   constructor(travelPoint) {
     super();
 

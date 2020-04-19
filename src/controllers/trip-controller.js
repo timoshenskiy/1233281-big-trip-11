@@ -1,18 +1,18 @@
 import EditFormComponent from '../components/edit-form.js';
-import PointListComponent from '../components/travel-point-list.js';
-import NoPointsComponent from '../components/no-travel-points.js';
-import PointComponent from '../components/travel-point.js';
+import TravelPointListComponent from '../components/travel-point-list.js';
+import NoTravelPointsComponent from '../components/no-travel-points.js';
+import TravelPointComponent from '../components/travel-point.js';
 import {render, replace, RenderPosition} from "../utils/render.js";
 
 const renderPoint = (point, pointList) => {
   const editFormComponent = new EditFormComponent(point);
-  const pointComponent = new PointComponent(point);
+  const travelPointComponent = new TravelPointComponent(point);
 
   const replaceEditToPoint = () => {
-    replace(pointComponent, editFormComponent);
+    replace(travelPointComponent, editFormComponent);
   };
   const replacePointToEdit = () => {
-    replace(editFormComponent, pointComponent);
+    replace(editFormComponent, travelPointComponent);
   };
 
   const onEscKeyDown = (evt) => {
@@ -24,7 +24,7 @@ const renderPoint = (point, pointList) => {
     }
   };
 
-  pointComponent.setEditButtonClickHandler(() => {
+  travelPointComponent.setEditButtonClickHandler(() => {
     replacePointToEdit();
     document.addEventListener(`keydown`, onEscKeyDown);
   });
@@ -35,7 +35,7 @@ const renderPoint = (point, pointList) => {
     document.removeEventListener(`keydown`, onEscKeyDown);
   });
 
-  render(pointList, pointComponent.getElement(), RenderPosition.BEFOREEND);
+  render(pointList, travelPointComponent.getElement(), RenderPosition.BEFOREEND);
 };
 
 
@@ -43,7 +43,7 @@ export default class TripController {
   constructor(container) {
     this._container = container;
 
-    this._noPointsComponent = new NoPointsComponent();
+    this._noTravelPointsComponent = new NoTravelPointsComponent();
   }
   render(travelPoints) {
     travelPoints.sort((a, b) => {
@@ -51,18 +51,18 @@ export default class TripController {
     });
 
     if (travelPoints.length === 0) {
-      render(this._container, this._noPointsComponent.getElement(), RenderPosition.BEFOREEND);
+      render(this._container, this._noTravelPointsComponent.getElement(), RenderPosition.BEFOREEND);
       return;
     }
 
     let currentDate = travelPoints[0].departureDate;
     let dayNumber = 1;
-    let travelPointList = new PointListComponent(dayNumber, travelPoints[0].departureDate);
+    let travelPointList = new TravelPointListComponent(dayNumber, travelPoints[0].departureDate);
     render(this._container, travelPointList.getElement(), RenderPosition.BEFOREEND);
     for (const travelPoint of travelPoints) {
       if (!(currentDate.getMonth() === travelPoint.departureDate.getMonth() && currentDate.getDate() === travelPoint.departureDate.getDate())) {
         dayNumber++;
-        travelPointList = new PointListComponent(dayNumber, travelPoint.departureDate);
+        travelPointList = new TravelPointListComponent(dayNumber, travelPoint.departureDate);
         render(this._container, travelPointList.getElement(), RenderPosition.BEFOREEND);
       }
       currentDate = travelPoint.departureDate;

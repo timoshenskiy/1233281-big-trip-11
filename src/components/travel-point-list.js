@@ -19,7 +19,7 @@ const createTravelPointListTemplate = (number, date) => {
   );
 };
 
-export default class PointList extends AbstractComponent {
+export default class TravelPointList extends AbstractComponent {
   constructor(number, date) {
     super();
 
