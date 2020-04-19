@@ -1,5 +1,5 @@
 import {POINT_TYPES_TRANSFER, POINT_TYPES_ACTIVITY, POINT_DESTINATIONS, POINT_DESCRIPTIONS} from '../const.js';
-import {getRandomIntegerNumber} from '../utils.js';
+import {getRandomIntegerNumber} from '../utils/common.js';
 import {generatePointOffers} from './offers.js';
 
 const generatePointType = () => {

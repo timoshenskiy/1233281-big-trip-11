@@ -1,4 +1,5 @@
-import {createElement, makeFirstSymbolUppercase, formatTime, formatDateDifference, formatTimeforDatetime} from '../utils.js';
+import {makeFirstSymbolUppercase, formatTime, formatDateDifference, formatTimeforDatetime} from '../utils/common.js';
+import AbstractComponent from './abstract-component.js';
 
 const OFFER_VIEW_COUNT = 3;
 const createOffersList = (checkedOffers) => {
@@ -56,26 +57,18 @@ const createTravelPointTemplate = (travelPoint) => {
   );
 };
 
-export default class Point {
+export default class TravelPoint extends AbstractComponent {
   constructor(travelPoint) {
-    this._travelPoint = travelPoint;
+    super();
 
-    this._element = null;
+    this._travelPoint = travelPoint;
   }
 
   getTemplate() {
     return createTravelPointTemplate(this._travelPoint);
   }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
+  setEditButtonClickHandler(handler) {
+    this.getElement().querySelector(`button`)
+      .addEventListener(`click`, handler);
   }
 }

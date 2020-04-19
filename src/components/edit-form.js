@@ -1,5 +1,6 @@
 import {POINT_TYPES_TRANSFER, POINT_TYPES_ACTIVITY} from '../const.js';
-import {createElement, makeFirstSymbolUppercase, formatTimeforInput} from '../utils.js';
+import {makeFirstSymbolUppercase, formatTimeforInput} from '../utils/common.js';
+import AbstractComponent from './abstract-component.js';
 
 const createEventTypeItems = (eventTypes, checkedType) => {
   return eventTypes.map((eventType, index) => {
@@ -128,26 +129,17 @@ const createEditFormTemplate = (travelPoint) => {
 };
 
 
-export default class EditForm {
+export default class EditForm extends AbstractComponent {
   constructor(travelPoint) {
-    this._travelPoint = travelPoint;
+    super();
 
-    this._element = null;
+    this._travelPoint = travelPoint;
   }
 
   getTemplate() {
     return createEditFormTemplate(this._travelPoint);
   }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
+  setSubmitHandler(handler) {
+    this.getElement().addEventListener(`submit`, handler);
   }
 }

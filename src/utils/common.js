@@ -1,31 +1,4 @@
-import {MONTH_NAMES} from './const.js';
-
-const createElement = (template) => {
-  const newElement = document.createElement(`div`);
-  newElement.innerHTML = template;
-
-  return newElement.firstChild;
-};
-
-const RenderPosition = {
-  AFTERBEGIN: `afterbegin`,
-  BEFOREEND: `beforeend`,
-  AFTEREND: `afterend`
-};
-
-const render = (container, element, place) => {
-  switch (place) {
-    case RenderPosition.AFTERBEGIN:
-      container.prepend(element);
-      break;
-    case RenderPosition.BEFOREEND:
-      container.append(element);
-      break;
-    case RenderPosition.AFTEREND:
-      container.after(element);
-      break;
-  }
-};
+import {MONTH_NAMES} from '../const.js';
 
 const getRandomIntegerNumber = (min, max) => {
   return min + Math.floor(Math.random() * (max - min));
@@ -87,4 +60,4 @@ const formatDateForPointList = (date) => {
   return `${month} ${day}`;
 
 };
-export {render, RenderPosition, createElement, getRandomIntegerNumber, makeFirstSymbolUppercase, formatTime, formatDatePeriod, formatDateDifference, formatDateForPointList, formatTimeforInput, formatTimeforDatetime};
+export {getRandomIntegerNumber, makeFirstSymbolUppercase, formatTime, formatDatePeriod, formatDateDifference, formatDateForPointList, formatTimeforInput, formatTimeforDatetime};
