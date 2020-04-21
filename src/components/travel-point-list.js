@@ -1,7 +1,7 @@
 import {formatTimeforDatetime, formatDateForPointList} from '../utils/common.js';
 import AbstractComponent from './abstract-component.js';
 
-const createTravelPointListTemplate = (number = false, date = false) => {
+const createTravelPointListTemplate = (number, date) => {
   return (
     `<ul class="trip-days">
             <li class="trip-days__item  day">
@@ -20,7 +20,7 @@ const createTravelPointListTemplate = (number = false, date = false) => {
 };
 
 export default class TravelPointList extends AbstractComponent {
-  constructor(number = false, date = false) {
+  constructor(number = null, date = null) {
     super();
 
     this._number = number;

@@ -6,7 +6,7 @@ import TravelPointComponent from '../components/travel-point.js';
 import {render, replace, RenderPosition} from "../utils/render.js";
 
 
-const getSortedTravelPoints = (sortType, travelPoints) => {
+const sortTravelPoints = (sortType, travelPoints) => {
   switch (sortType) {
     case SortType.TIME:
       travelPoints.sort((a, b) => ((b.arrivalDate - b.departureDate) - (a.arrivalDate - a.departureDate)));
@@ -14,8 +14,10 @@ const getSortedTravelPoints = (sortType, travelPoints) => {
     case SortType.PRICE:
       travelPoints.sort((a, b) => (b.price - a.price));
       break;
+    case SortType.EVENT:
+      travelPoints.sort((a, b) => (a.departureDate - b.departureDate));
+      break;
   }
-  return travelPoints;
 };
 const renderSortedTravelPoints = (container, sortedTravelPoints) => {
   const sortedTravelPointList = new TravelPointListComponent();
@@ -34,7 +36,8 @@ const renderSorting = (container, travelPoints) => {
       renderPoints(container, travelPoints);
       return;
     }
-    const sortedTravelPoints = getSortedTravelPoints(sortType, travelPoints.slice(), container);
+    const sortedTravelPoints = travelPoints.slice();
+    sortTravelPoints(sortType, sortedTravelPoints);
     render(container, sortingComponent.getElement(), RenderPosition.BEFOREEND);
     renderSortedTravelPoints(container, sortedTravelPoints);
 
@@ -75,14 +78,7 @@ const renderPoint = (point, pointList) => {
   render(pointList, travelPointComponent.getElement(), RenderPosition.BEFOREEND);
 };
 const renderPoints = (container, travelPoints) => {
-  travelPoints.sort((a, b) => {
-    return a.departureDate - b.departureDate;
-  });
-
-  if (travelPoints.length === 0) {
-    render(container, new NoTravelPointsComponent().getElement(), RenderPosition.BEFOREEND);
-    return;
-  }
+  sortTravelPoints(SortType.EVENT, travelPoints);
 
   let currentDate = travelPoints[0].departureDate;
   let dayNumber = 1;
@@ -104,12 +100,17 @@ export default class TripController {
   constructor(container) {
     this._container = container;
 
+    this._noTravelPointsComponent = new NoTravelPointsComponent();
     this._sortingComponent = new SortingComponent(SortType.EVENT);
   }
   render(travelPoints) {
     if (travelPoints.length > 0) {
       renderSorting(this._container, travelPoints);
+    } else {
+      render(this._container, this._noTravelPointsComponent.getElement(), RenderPosition.BEFOREEND);
+      return;
     }
+
     renderPoints(this._container, travelPoints);
   }
 }
