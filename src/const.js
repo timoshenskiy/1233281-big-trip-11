@@ -13,37 +13,6 @@ const POINT_DESCRIPTIONS = [`Lorem ipsum dolor sit amet, consectetur adipiscing 
   `Aliquam erat volutpat. `,
   `Nunc fermentum tortor ac porta dapibus. `,
   `In rutrum ac purus sit amet tempus. `];
-const pointOffers = [{
-  type: `drive`,
-  title: `Rent a car`,
-  price: Math.floor((Math.random() * 20)) * 5,
-  isChecked: Math.random() > 0.7 ? true : false,
-}, {
-  type: `flight`,
-  title: `Add luggage`,
-  price: Math.floor((Math.random() * 20)) * 5,
-  isChecked: Math.random() > 0.7 ? true : false,
-}, {
-  type: `flight`,
-  title: `Switch to comfort class`,
-  price: Math.floor((Math.random() * 20)) * 5,
-  isChecked: Math.random() > 0.7 ? true : false,
-}, {
-  type: `check-in`,
-  title: `Add Meal`,
-  price: Math.floor((Math.random() * 20)) * 5,
-  isChecked: Math.random() > 0.7 ? true : false,
-}, {
-  type: `train`,
-  title: `Choose seats`,
-  price: Math.floor((Math.random() * 20)) * 5,
-  isChecked: Math.random() > 0.7 ? true : false,
-}, {
-  type: `transport`,
-  title: `Travel by train`,
-  price: Math.floor((Math.random() * 20)) * 5,
-  isChecked: Math.random() > 0.7 ? true : false,
-}];
 const MONTH_NAMES = [
   `Jan`,
   `Feb`,
@@ -58,4 +27,4 @@ const MONTH_NAMES = [
   `Nov`,
   `Dec`,
 ];
-export {POINT_TYPES_TRANSFER, POINT_TYPES_ACTIVITY, POINT_OFFERS_TITLES, POINT_DESTINATIONS, POINT_DESCRIPTIONS, pointOffers, MONTH_NAMES};
+export {POINT_TYPES_TRANSFER, POINT_TYPES_ACTIVITY, POINT_OFFERS_TITLES, POINT_DESTINATIONS, POINT_DESCRIPTIONS, MONTH_NAMES};

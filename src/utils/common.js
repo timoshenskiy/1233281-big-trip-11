@@ -1,7 +1,13 @@
-import {MONTH_NAMES} from '../const.js';
+import {MONTH_NAMES, POINT_TYPES_TRANSFER} from '../const.js';
 
 const getRandomIntegerNumber = (min, max) => {
   return min + Math.floor(Math.random() * (max - min));
+};
+
+const findCorrectPrepostion = (pointType) => {
+  return POINT_TYPES_TRANSFER.some((it) => {
+    return it === pointType;
+  }) ? `to` : `in`;
 };
 
 const makeFirstSymbolUppercase = (string) => {
@@ -60,4 +66,4 @@ const formatDateForPointList = (date) => {
   return `${month} ${day}`;
 
 };
-export {getRandomIntegerNumber, makeFirstSymbolUppercase, formatTime, formatDatePeriod, formatDateDifference, formatDateForPointList, formatTimeforInput, formatTimeforDatetime};
+export {findCorrectPrepostion, getRandomIntegerNumber, makeFirstSymbolUppercase, formatTime, formatDatePeriod, formatDateDifference, formatDateForPointList, formatTimeforInput, formatTimeforDatetime};

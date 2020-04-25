@@ -1,5 +1,7 @@
 import {formatDatePeriod} from '../utils/common.js';
 import AbstractComponent from './abstract-component.js';
+import {sortTravelPoints} from '../controllers/trip-controller.js';
+import {SortType} from '../components/sorting.js';
 
 const createTravelPointsInfo = (points) => {
   let uniquePoints = [points[0].destination];
@@ -12,8 +14,10 @@ const createTravelPointsInfo = (points) => {
 
 };
 const createTravelInfoTemplate = (points) => {
-  const pointsInfo = (points.length > 0) ? createTravelPointsInfo(points) : ``;
-  const datePeriodInfo = (points.length > 0) ? formatDatePeriod(points[0].departureDate, points[points.length - 1].arrivalDate) : ``;
+  const sortedPoints = points.slice();
+  sortTravelPoints(SortType.EVENT, sortedPoints);
+  const pointsInfo = (sortedPoints.length > 0) ? createTravelPointsInfo(sortedPoints) : ``;
+  const datePeriodInfo = (sortedPoints.length > 0) ? formatDatePeriod(sortedPoints[0].departureDate, sortedPoints[sortedPoints.length - 1].arrivalDate) : ``;
   return (
     `<section class="trip-main__trip-info  trip-info">
             <div class="trip-info__main">
