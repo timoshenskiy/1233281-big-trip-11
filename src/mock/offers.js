@@ -1,19 +1,31 @@
 import {POINT_TYPES_TRANSFER, POINT_TYPES_ACTIVITY, POINT_OFFERS_TITLES} from '../const.js';
 import {getRandomIntegerNumber} from '../utils/common.js';
 
-const generatePointOffer = () => {
-  const pointTypes = Math.random() > 0.5 ? POINT_TYPES_TRANSFER : POINT_TYPES_ACTIVITY;
-  return {
-    type: pointTypes[getRandomIntegerNumber(0, pointTypes.length - 1)],
-    title: POINT_OFFERS_TITLES[getRandomIntegerNumber(0, POINT_OFFERS_TITLES.length - 1)],
-    price: 5 + Math.floor((Math.random() * 20)) * 5,
-  };
+const generateOffers = (count) => {
+  const offers = [];
+  while (count > 0) {
+    offers.push({
+      title: POINT_OFFERS_TITLES[getRandomIntegerNumber(0, POINT_OFFERS_TITLES.length - 1)],
+      price: 5 + Math.floor((Math.random() * 20)) * 5,
+
+    });
+    count--;
+  }
+  return offers;
+
 
 };
 
-export const generatePointOffers = (count) => {
-  return new Array(count)
-    .fill(``)
-    .map(generatePointOffer);
-};
+const offersForEvents = [];
+const pointTypes = [].concat(POINT_TYPES_TRANSFER, POINT_TYPES_ACTIVITY);
+pointTypes.forEach((it) => {
+  offersForEvents.push(
+      {
+        type: it,
+        list: generateOffers(getRandomIntegerNumber(0, 6)),
+      });
+});
+
+export {offersForEvents};
+
 

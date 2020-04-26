@@ -1,12 +1,11 @@
-import EditFormComponent from '../components/edit-form.js';
-import TravelPointListComponent from '../components/travel-point-list.js';
+import PointController from './point.js';
 import SortingComponent, {SortType} from '../components/sorting.js';
 import NoTravelPointsComponent from '../components/no-travel-points.js';
-import TravelPointComponent from '../components/travel-point.js';
-import {render, replace, RenderPosition} from "../utils/render.js";
+import TravelPointListComponent from '../components/travel-point-list.js';
+import {render, RenderPosition} from "../utils/render.js";
 
 
-const sortTravelPoints = (sortType, travelPoints) => {
+export const sortTravelPoints = (sortType, travelPoints) => {
   switch (sortType) {
     case SortType.TIME:
       travelPoints.sort((a, b) => ((b.arrivalDate - b.departureDate) - (a.arrivalDate - a.departureDate)));
@@ -19,65 +18,35 @@ const sortTravelPoints = (sortType, travelPoints) => {
       break;
   }
 };
-const renderSortedTravelPoints = (container, sortedTravelPoints) => {
+const renderSortedTravelPoints = (container, sortedTravelPoints, onDataChange, onViewChange) => {
   const sortedTravelPointList = new TravelPointListComponent();
   render(container, sortedTravelPointList.getElement(), RenderPosition.BEFOREEND);
   for (const travelPoint of sortedTravelPoints) {
-    renderPoint(travelPoint, sortedTravelPointList.getPlaceForPoint());
+    const pointController = new PointController(sortedTravelPointList.getPlaceForPoint(), onDataChange, onViewChange);
+    pointController.render(travelPoint);
   }
 };
-const renderSorting = (container, travelPoints) => {
+const renderSorting = (container, travelPoints, onDataChange, onViewChange) => {
   const sortingComponent = new SortingComponent(SortType.EVENT);
   render(container, sortingComponent.getElement(), RenderPosition.BEFOREEND);
   sortingComponent.setSortTypeChangeHandler((sortType)=>{
     container.innerHTML = ``;
     if (sortType === SortType.EVENT) {
       render(container, sortingComponent.getElement(), RenderPosition.BEFOREEND);
-      renderPoints(container, travelPoints);
+      renderPoints(container, travelPoints, onDataChange);
       return;
     }
     const sortedTravelPoints = travelPoints.slice();
     sortTravelPoints(sortType, sortedTravelPoints);
     render(container, sortingComponent.getElement(), RenderPosition.BEFOREEND);
-    renderSortedTravelPoints(container, sortedTravelPoints);
+    renderSortedTravelPoints(container, sortedTravelPoints, onDataChange, onViewChange);
 
   });
 };
 
-const renderPoint = (point, pointList) => {
-  const editFormComponent = new EditFormComponent(point);
-  const travelPointComponent = new TravelPointComponent(point);
 
-  const replaceEditToPoint = () => {
-    replace(travelPointComponent, editFormComponent);
-  };
-  const replacePointToEdit = () => {
-    replace(editFormComponent, travelPointComponent);
-  };
-
-  const onEscKeyDown = (evt) => {
-    const isEscKey = evt.key === `Escape` || evt.key === `Esc`;
-
-    if (isEscKey) {
-      replaceEditToPoint();
-      document.removeEventListener(`keydown`, onEscKeyDown);
-    }
-  };
-
-  travelPointComponent.setEditButtonClickHandler(() => {
-    replacePointToEdit();
-    document.addEventListener(`keydown`, onEscKeyDown);
-  });
-
-  editFormComponent.setSubmitHandler((evt) => {
-    evt.preventDefault();
-    replaceEditToPoint();
-    document.removeEventListener(`keydown`, onEscKeyDown);
-  });
-
-  render(pointList, travelPointComponent.getElement(), RenderPosition.BEFOREEND);
-};
-const renderPoints = (container, travelPoints) => {
+const renderPoints = (container, travelPoints, onDataChange, onViewChange) => {
+  const pointControllers = [];
   sortTravelPoints(SortType.EVENT, travelPoints);
 
   let currentDate = travelPoints[0].departureDate;
@@ -91,26 +60,49 @@ const renderPoints = (container, travelPoints) => {
       render(container, travelPointList.getElement(), RenderPosition.BEFOREEND);
     }
     currentDate = travelPoint.departureDate;
-    renderPoint(travelPoint, travelPointList.getPlaceForPoint());
 
+    const pointController = new PointController(travelPointList.getPlaceForPoint(), onDataChange, onViewChange);
+    pointControllers.push(pointController);
+    pointController.render(travelPoint);
   }
+  return pointControllers;
 };
 
 export default class TripController {
   constructor(container) {
     this._container = container;
 
+    this._travelPoints = [];
+    this._pointControllers = [];
+
+    this._onDataChange = this._onDataChange.bind(this);
+    this._onViewChange = this._onViewChange.bind(this);
     this._noTravelPointsComponent = new NoTravelPointsComponent();
     this._sortingComponent = new SortingComponent(SortType.EVENT);
   }
   render(travelPoints) {
-    if (travelPoints.length > 0) {
-      renderSorting(this._container, travelPoints);
+    this._travelPoints = travelPoints;
+    if (this._travelPoints.length > 0) {
+      renderSorting(this._container, this._travelPoints, this._onDataChange, this._onViewChange);
     } else {
       render(this._container, this._noTravelPointsComponent.getElement(), RenderPosition.BEFOREEND);
       return;
     }
 
-    renderPoints(this._container, travelPoints);
+    this._pointControllers = renderPoints(this._container, this._travelPoints, this._onDataChange, this._onViewChange);
+  }
+  _onViewChange() {
+    this._pointControllers.forEach((it) => it.setDefaultView());
+  }
+  _onDataChange(pointController, oldData, newData) {
+    const index = this._travelPoints.findIndex((it) => it === oldData);
+
+    if (index === -1) {
+      return;
+    }
+    this._travelPoints = [].concat(this._travelPoints.slice(0, index), newData, this._travelPoints.slice(index + 1));
+
+    pointController.render(this._travelPoints[index]);
+
   }
 }

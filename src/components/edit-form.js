@@ -1,6 +1,8 @@
-import {POINT_TYPES_TRANSFER, POINT_TYPES_ACTIVITY} from '../const.js';
-import {makeFirstSymbolUppercase, formatTimeforInput} from '../utils/common.js';
-import AbstractComponent from './abstract-component.js';
+import {POINT_TYPES_TRANSFER, POINT_TYPES_ACTIVITY, POINT_DESTINATIONS} from '../const.js';
+import {makeFirstSymbolUppercase, formatTimeforInput, findCorrectPrepostion} from '../utils/common.js';
+import AbstractSmartComponent from './abstract-smart-component.js';
+import {placesInfo} from "../mock/place-info.js";
+import {offersForEvents} from "../mock/offers.js";
 
 const createEventTypeItems = (eventTypes, checkedType) => {
   return eventTypes.map((eventType, index) => {
@@ -39,9 +41,20 @@ const createPhotoMarkup = (photos) => {
   }).join(`\n`);
 };
 
+const createOptionsTemplate = (pointDestinations) => {
+  return pointDestinations.map((it) => {
+    return (
+      `<option value="${it}"></option>`);
+  })
+  .join(`\n`);
 
-const createEditFormTemplate = (travelPoint) => {
-  const {type, preposition, destination, checkedOffers, uncheckedOffers, price, description, photos, departureDate, arrivalDate} = travelPoint;
+};
+
+
+const createEditFormTemplate = (travelPoint, options) => {
+  const {price, departureDate, arrivalDate, isFavorite} = travelPoint;
+  const {type, destination, description, photos, checkedOffers, uncheckedOffers} = options;
+  const preposition = findCorrectPrepostion(type);
   const startTime = formatTimeforInput(departureDate);
   const endTime = formatTimeforInput(arrivalDate);
   return (
@@ -73,10 +86,7 @@ const createEditFormTemplate = (travelPoint) => {
                 </label>
                 <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1">
                 <datalist id="destination-list-1">
-                  <option value="Amsterdam"></option>
-                  <option value="Geneva"></option>
-                  <option value="Chamonix"></option>
-                  <option value="Saint Petersburg"></option>
+                  ${createOptionsTemplate(POINT_DESTINATIONS)}
                 </datalist>
               </div>
 
@@ -101,10 +111,21 @@ const createEditFormTemplate = (travelPoint) => {
               </div>
 
               <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-              <button class="event__reset-btn" type="reset">Cancel</button>
+              <button class="event__reset-btn" type="reset">Delete</button>
+
+              <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavorite ? `checked` : ``}>
+              <label class="event__favorite-btn" for="event-favorite-1">
+                <span class="visually-hidden">Add to favorite</span>
+                <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
+                  <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
+                </svg>
+              </label>
+              <button class="event__rollup-btn" type="button">
+                <span class="visually-hidden">Open event</span>
+              </button>
             </header>
             <section class="event__details">
-            ${checkedOffers.length > 0 || uncheckedOffers > 0 ? `
+            ${checkedOffers.length > 0 || uncheckedOffers.length > 0 ? `
               <section class="event__section  event__section--offers">
                 <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
@@ -129,17 +150,99 @@ const createEditFormTemplate = (travelPoint) => {
 };
 
 
-export default class EditForm extends AbstractComponent {
+export default class EditForm extends AbstractSmartComponent {
   constructor(travelPoint) {
     super();
 
     this._travelPoint = travelPoint;
+    this._type = travelPoint.type;
+    this._destination = travelPoint.destination;
+    this._description = travelPoint.description;
+    this._photos = travelPoint.photos;
+    this._checkedOffers = travelPoint.checkedOffers;
+    this._uncheckedOffers = travelPoint.uncheckedOffers;
+    this._subscribeOnEvents();
+    this._submitHandler = null;
+    this._favoritesHandler = null;
+    this._editCloseHandler = null;
   }
 
   getTemplate() {
-    return createEditFormTemplate(this._travelPoint);
+    return createEditFormTemplate(this._travelPoint, {
+      type: this._type,
+      destination: this._destination,
+      description: this._description,
+      photos: this._photos,
+      checkedOffers: this._checkedOffers,
+      uncheckedOffers: this._uncheckedOffers,
+    });
+  }
+  rerender() {
+    super.rerender();
+  }
+  reset() {
+    const travelPoint = this._travelPoint;
+
+    this._type = travelPoint.type;
+    this._destination = travelPoint.destination;
+    this._description = travelPoint.description;
+    this._photos = travelPoint.photos;
+    this._checkedOffers = travelPoint.checkedOffers;
+    this._uncheckedOffers = travelPoint.uncheckedOffers;
+
+    this.rerender();
+  }
+  recoveryListeners() {
+    this.setEditCloseButtonClickHandler(this._editCloseHandler);
+    this.setSubmitHandler(this._submitHandler);
+    this.setFavoritesButtonClickHandler(this._favoritesHandler);
+    this._subscribeOnEvents();
+
+  }
+  _subscribeOnEvents() {
+    const element = this.getElement();
+    const labels = element.querySelectorAll(`.event__type-label`);
+    for (const label of labels) {
+      label.addEventListener(`click`, (evt) => {
+        this._type = evt.target.textContent.toLowerCase();
+        this._checkedOffers = [];
+        for (const offersForEvent of offersForEvents) {
+          if (offersForEvent.type === this._type) {
+            this._uncheckedOffers = offersForEvent.list;
+          }
+        }
+
+        this.rerender();
+      });
+    }
+    element.querySelector(`.event__input--destination`).addEventListener(`change`, (evt) => {
+      this._destination = evt.target.value;
+      for (const placeInfo of placesInfo) {
+        if (placeInfo.name === evt.target.value) {
+          this._description = placeInfo.description;
+          this._photos = placeInfo.photos;
+        }
+      }
+
+      this.rerender();
+    });
+
+  }
+  setFavoritesButtonClickHandler(handler) {
+    this.getElement().querySelector(`.event__favorite-checkbox`)
+      .addEventListener(`click`, handler);
+
+    this._favoritesHandler = handler;
   }
   setSubmitHandler(handler) {
     this.getElement().addEventListener(`submit`, handler);
+
+    this._submitHandler = handler;
+  }
+  setEditCloseButtonClickHandler(handler) {
+    this.getElement().querySelector(`.event__rollup-btn`)
+      .addEventListener(`click`, handler);
+
+    this._editCloseHandler = handler;
   }
 }
