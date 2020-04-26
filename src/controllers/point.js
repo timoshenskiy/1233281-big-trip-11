@@ -45,18 +45,18 @@ export default class PointController {
       document.removeEventListener(`keydown`, this._onEscKeyDown);
     });
 
+    this._editFormComponent.setEditCloseButtonClickHandler(()=>{
+      this._replaceEditToPoint();
+      document.removeEventListener(`keydown`, this._onEscKeyDown);
+    });
+
     if (oldEditFormComponent && oldPointComponent) {
       replace(this._travelPointComponent, oldPointComponent);
       replace(this._editFormComponent, oldEditFormComponent);
-      if (this._savedEditFormView) {
-        replace(this._savedEditFormView, this._editFormComponent);
-      }
       this._replacePointToEdit();
     } else {
       render(this._container, this._travelPointComponent.getElement(), RenderPosition.BEFOREEND);
     }
-
-
   }
   setDefaultView() {
     if (this._mode !== Mode.DEFAULT) {
