@@ -1,3 +1,4 @@
+import moment from "moment";
 import {MONTH_NAMES, POINT_TYPES_TRANSFER} from '../const.js';
 
 const getRandomIntegerNumber = (min, max) => {
@@ -15,32 +16,15 @@ const makeFirstSymbolUppercase = (string) => {
   return string;
 };
 
-const castTimeFormat = (value) => {
-  return value < 10 ? `0${value}` : String(value);
-};
-
 const formatTime = (date) => {
-  const hours = castTimeFormat(date.getHours() % 12);
-  const minutes = castTimeFormat(date.getMinutes());
-
-  return `${hours}:${minutes}`;
+  return moment(date).format(`hh:mm`);
+};
+const formatDate = (date) => {
+  return moment(date).format(`YYYY-MM-DD`);
 };
 
 const formatTimeforInput = (date) => {
-  const day = castTimeFormat(date.getDate());
-  const month = castTimeFormat(date.getMonth() + 1);
-  const year = `${date.getFullYear()}`.substr(2, 4);
-  const hour = castTimeFormat(date.getHours());
-  const minute = castTimeFormat(date.getMinutes());
-  return `${day}/${month}/${year} ${hour}:${minute}`;
-};
-const formatTimeforDatetime = (date, time = true) => {
-  const day = castTimeFormat(date.getDate());
-  const month = castTimeFormat(date.getMonth() + 1);
-  const year = `${date.getFullYear()}`.substr(2, 4);
-  const hour = castTimeFormat(date.getHours());
-  const minute = castTimeFormat(date.getMinutes());
-  return `${day}-${month}-${year}${time ? `T${hour}:${minute}` : ``}`;
+  return moment(date).format(`DD/MM/YY HH:mm`);
 };
 
 const formatDatePeriod = (firstDate, lastDate) => {
@@ -50,20 +34,20 @@ const formatDatePeriod = (firstDate, lastDate) => {
   const lastDay = lastDate.getDate();
   return `${firstMonth} ${firstDay}&nbsp;&mdash;&nbsp;${lastMonth} ${lastDay}`;
 };
-const formatDateDifference = (differenceInMs) => {
-  let milliseconds = differenceInMs;
-  const days = Math.floor(milliseconds / 1000 / 60 / 60 / 24);
-  milliseconds -= days * 24 * 60 * 60 * 1000;
-  const hours = Math.floor(milliseconds / 1000 / 60 / 60);
-  milliseconds -= hours * 60 * 60 * 1000;
-  const minutes = Math.floor(milliseconds / 1000 / 60);
+const formatDateDifference = (date1, date2) => {
+  const arrivalDate = moment(date1);
+  const departureDate = moment(date2);
 
-  return `${days !== 0 ? `${castTimeFormat(days)}D` : ``}  ${(hours !== 0 || days !== 0) ? `${castTimeFormat(hours)}H` : ``} ${(hours !== 0 || days !== 0 || minutes !== 0) ? `${castTimeFormat(minutes)}M` : ``} `;
+  const days = departureDate.diff(arrivalDate, `days`);
+  departureDate.subtract(days, `days`);
+  const hours = departureDate.diff(arrivalDate, `hours`);
+  departureDate.subtract(hours, `hours`);
+  const minutes = departureDate.diff(arrivalDate, `minutes`);
+
+  return `${days !== 0 ? `${days}D` : ``}  ${(hours !== 0 || days !== 0) ? `${hours}H` : ``} ${(hours !== 0 || days !== 0 || minutes !== 0) ? `${minutes}M` : ``} `;
 };
 const formatDateForPointList = (date) => {
-  const month = MONTH_NAMES[date.getMonth()];
-  const day = castTimeFormat(date.getDate());
-  return `${month} ${day}`;
+  return moment(date).format(`MMM DD`);
 
 };
-export {findCorrectPrepostion, getRandomIntegerNumber, makeFirstSymbolUppercase, formatTime, formatDatePeriod, formatDateDifference, formatDateForPointList, formatTimeforInput, formatTimeforDatetime};
+export {findCorrectPrepostion, getRandomIntegerNumber, makeFirstSymbolUppercase, formatDate, formatTime, formatDatePeriod, formatDateDifference, formatDateForPointList, formatTimeforInput};
