@@ -3,6 +3,9 @@ import {makeFirstSymbolUppercase, formatTimeforInput, findCorrectPrepostion} fro
 import AbstractSmartComponent from './abstract-smart-component.js';
 import {placesInfo} from "../mock/place-info.js";
 import {offersForEvents} from "../mock/offers.js";
+import flatpickr from "flatpickr";
+
+import "flatpickr/dist/flatpickr.min.css";
 
 const createEventTypeItems = (eventTypes, checkedType) => {
   return eventTypes.map((eventType, index) => {
@@ -156,15 +159,22 @@ export default class EditForm extends AbstractSmartComponent {
 
     this._travelPoint = travelPoint;
     this._type = travelPoint.type;
+    this._departureDate = travelPoint.departureDate;
+    this._arrivalDate = travelPoint.arrivalDate;
     this._destination = travelPoint.destination;
     this._description = travelPoint.description;
     this._photos = travelPoint.photos;
     this._checkedOffers = travelPoint.checkedOffers;
     this._uncheckedOffers = travelPoint.uncheckedOffers;
     this._subscribeOnEvents();
+    this._applyFlatpickr();
+
+    this._flatpickrDeparture = null;
+    this._flatpickrArrival = null;
     this._submitHandler = null;
     this._favoritesHandler = null;
     this._editCloseHandler = null;
+
   }
 
   getTemplate() {
@@ -179,6 +189,8 @@ export default class EditForm extends AbstractSmartComponent {
   }
   rerender() {
     super.rerender();
+
+    this._applyFlatpickr();
   }
   reset() {
     const travelPoint = this._travelPoint;
@@ -191,6 +203,34 @@ export default class EditForm extends AbstractSmartComponent {
     this._uncheckedOffers = travelPoint.uncheckedOffers;
 
     this.rerender();
+  }
+  _applyFlatpickr() {
+    if (this._flatpickrDeparture) {
+      this._flatpickrDeparture.destroy();
+      this._flatpickrDeparture = null;
+    }
+    if (this._flatpickrArrival) {
+      this._flatpickrArrival.destroy();
+      this._flatpickrArrival = null;
+    }
+
+
+    const dateElements = this.getElement().querySelectorAll(`.event__input--time`);
+
+    const flatpickrDepartureOptions = {
+      altInput: true,
+      allowInput: true,
+      altFormat: `d/m/y H:i`,
+      enableTime: true,
+      dateFormat: `M-d-Y H:i`,
+      defaultDate: this._departureDate,
+    };
+    const flatpickrArrivalOptions = Object.assign({}, flatpickrDepartureOptions, {
+      defaultDate: this._arrivalDate,
+    });
+
+    this._flatpickrDeparture = flatpickr(dateElements[0], flatpickrDepartureOptions);
+    this._flatpickrArrival = flatpickr(dateElements[1], flatpickrArrivalOptions);
   }
   recoveryListeners() {
     this.setEditCloseButtonClickHandler(this._editCloseHandler);

@@ -1,4 +1,4 @@
-import {formatTimeforDatetime, formatDateForPointList} from '../utils/common.js';
+import {formatDate, formatDateForPointList} from '../utils/common.js';
 import AbstractComponent from './abstract-component.js';
 
 const createTravelPointListTemplate = (number, date) => {
@@ -8,7 +8,7 @@ const createTravelPointListTemplate = (number, date) => {
               <div class="day__info">
                 ${number ? `
                 <span class="day__counter">${number}</span>
-                <time class="day__date" datetime="${formatTimeforDatetime(date, false)}">${formatDateForPointList(date)}</time>
+                <time class="day__date" datetime="${formatDate(date)}">${formatDateForPointList(date)}</time>
                 ` : ``}
               </div>
 

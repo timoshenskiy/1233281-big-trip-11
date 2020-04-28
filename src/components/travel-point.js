@@ -1,4 +1,4 @@
-import {makeFirstSymbolUppercase, formatTime, formatDateDifference, formatTimeforDatetime, findCorrectPrepostion} from '../utils/common.js';
+import {makeFirstSymbolUppercase, formatTime, formatDate, formatDateDifference, findCorrectPrepostion} from '../utils/common.js';
 import AbstractComponent from './abstract-component.js';
 
 const OFFER_VIEW_COUNT = 3;
@@ -19,9 +19,9 @@ const createTravelPointTemplate = (travelPoint) => {
   const {type, destination, departureDate, arrivalDate, price, checkedOffers} = travelPoint;
   const departureTime = formatTime(departureDate);
   const arrivalTime = formatTime(arrivalDate);
-  const travelTime = formatDateDifference(arrivalDate - departureDate);
-  const departureDatetime = formatTimeforDatetime(departureDate);
-  const arrivalDatetime = formatTimeforDatetime(arrivalDate);
+  const travelTime = formatDateDifference(departureDate, arrivalDate);
+  const departureDatetime = `${formatDate(departureDate)}T${departureTime}`;
+  const arrivalDatetime = `${formatDate(arrivalDate)}T${arrivalTime}`;
   const preposition = findCorrectPrepostion(type);
   return (
     `<li class="trip-events__item">
