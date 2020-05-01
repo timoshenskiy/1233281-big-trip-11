@@ -1,6 +1,6 @@
 import TravelPointComponent from "../components/travel-point.js";
 import EditFormComponent from "../components/edit-form.js";
-import {render, replace, RenderPosition} from "../utils/render.js";
+import {render, replace, remove, RenderPosition} from "../utils/render.js";
 
 const Mode = {
   DEFAULT: `default`,
@@ -81,5 +81,10 @@ export default class PointController {
       this._replaceEditToPoint();
       document.removeEventListener(`keydown`, this._onEscKeyDown);
     }
+  }
+  destroy() {
+    remove(this._editFormComponent);
+    remove(this._travelPointComponent);
+    document.removeEventListener(`keydown`, this._onEscKeyDown);
   }
 }

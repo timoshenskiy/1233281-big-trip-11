@@ -19,6 +19,13 @@ const makeFirstSymbolUppercase = (string) => {
 const formatTime = (date) => {
   return moment(date).format(`hh:mm`);
 };
+const checkIsPastDay = (date, currentDate) => {
+  return date < currentDate;
+
+};
+const checkIsFutureDay = (date, currentDate) => {
+  return date > currentDate;
+};
 const formatDate = (date) => {
   return moment(date).format(`YYYY-MM-DD`);
 };
@@ -50,4 +57,4 @@ const formatDateForPointList = (date) => {
   return moment(date).format(`MMM DD`);
 
 };
-export {findCorrectPrepostion, getRandomIntegerNumber, makeFirstSymbolUppercase, formatDate, formatTime, formatDatePeriod, formatDateDifference, formatDateForPointList, formatTimeforInput};
+export {findCorrectPrepostion, getRandomIntegerNumber, makeFirstSymbolUppercase, checkIsFutureDay, checkIsPastDay, formatDate, formatTime, formatDatePeriod, formatDateDifference, formatDateForPointList, formatTimeforInput};

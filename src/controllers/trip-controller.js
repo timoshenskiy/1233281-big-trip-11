@@ -69,19 +69,23 @@ const renderPoints = (container, travelPoints, onDataChange, onViewChange) => {
 };
 
 export default class TripController {
-  constructor(container) {
+  constructor(container, pointsModel) {
     this._container = container;
+    this._pointsModel = pointsModel;
 
     this._travelPoints = [];
     this._pointControllers = [];
 
     this._onDataChange = this._onDataChange.bind(this);
     this._onViewChange = this._onViewChange.bind(this);
+    this._onFilterChange = this._onFilterChange.bind(this);
     this._noTravelPointsComponent = new NoTravelPointsComponent();
     this._sortingComponent = new SortingComponent(SortType.EVENT);
+
+    this._pointsModel.setFilterChangeHandler(this._onFilterChange);
   }
-  render(travelPoints) {
-    this._travelPoints = travelPoints;
+  render() {
+    this._travelPoints = this._pointsModel.getPoints();
     if (this._travelPoints.length > 0) {
       renderSorting(this._container, this._travelPoints, this._onDataChange, this._onViewChange);
     } else {
@@ -89,20 +93,32 @@ export default class TripController {
       return;
     }
 
+    this.renderPoints();
+  }
+  renderPoints() {
     this._pointControllers = renderPoints(this._container, this._travelPoints, this._onDataChange, this._onViewChange);
   }
   _onViewChange() {
     this._pointControllers.forEach((it) => it.setDefaultView());
   }
   _onDataChange(pointController, oldData, newData) {
-    const index = this._travelPoints.findIndex((it) => it === oldData);
+    const isSuccess = this._pointsModel.updateTask(oldData.id, newData);
 
-    if (index === -1) {
-      return;
+    if (isSuccess) {
+      pointController.render(newData);
     }
-    this._travelPoints = [].concat(this._travelPoints.slice(0, index), newData, this._travelPoints.slice(index + 1));
 
-    pointController.render(this._travelPoints[index]);
-
+  }
+  _onFilterChange() {
+    this._updatePoints();
+  }
+  _removePoints() {
+    this._pointControllers.forEach((pointController) => pointController.destroy());
+    this._pointControllers = [];
+  }
+  _updatePoints() {
+    this._removePoints();
+    this._container.innerHTML = ``;
+    this.render();
   }
 }
