@@ -23,9 +23,10 @@ export default class Points {
   }
   setFilter(filterType) {
     this._activeFilterType = filterType;
+
     this._callHandlers(this._filterChangeHandlers);
   }
-  updateTask(id, travelPoint) {
+  updatePoint(id, travelPoint) {
     const index = this._travelPoints.findIndex((it) => it.id === id);
 
     if (index === -1) {
@@ -38,12 +39,33 @@ export default class Points {
 
     return true;
   }
+  addPoint(travelPoint) {
+    this._travelPoints = [].concat(travelPoint, this._travelPoints);
+    this._callHandlers(this._dataChangeHandlers);
+  }
+  removePoint(id) {
+    const index = this._travelPoints.findIndex((it) => it.id === id);
+
+    if (index === -1) {
+      return false;
+    }
+
+    this._travelPoints = [].concat(this._travelPoints.slice(0, index), this._travelPoints.slice(index + 1));
+
+    this._callHandlers(this._dataChangeHandlers);
+
+    return true;
+  }
+
   setFilterChangeHandler(handler) {
     this._filterChangeHandlers.push(handler);
   }
 
   setDataChangeHandler(handler) {
     this._dataChangeHandlers.push(handler);
+  }
+  getActiveFilterType() {
+    return this._activeFilterType;
   }
 
   _callHandlers(handlers) {

@@ -72,4 +72,8 @@ export default class Sorting extends AbstractComponent {
     this._element.innerHTML = ``;
     this._element.innerHTML = this.getTemplate();
   }
+  setDefault() {
+    this._currentSortType = SortType.EVENT;
+    this.refreshElement();
+  }
 }

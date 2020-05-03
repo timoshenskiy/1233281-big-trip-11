@@ -3,9 +3,39 @@ import {makeFirstSymbolUppercase, formatTimeforInput, findCorrectPrepostion} fro
 import AbstractSmartComponent from './abstract-smart-component.js';
 import {placesInfo} from "../mock/place-info.js";
 import {offersForEvents} from "../mock/offers.js";
+import {Mode} from "../controllers/point.js";
 import flatpickr from "flatpickr";
 
 import "flatpickr/dist/flatpickr.min.css";
+
+
+const parseFormData = (formData, form) => {
+  const offers = Array.from(form.querySelectorAll(`.event__offer-selector`));
+  const allCheckedOffers = offers.filter((it)=>(it.querySelector(`input`).checked)).map((it)=>{
+    return ({
+      title: it.querySelector(`.event__offer-title`).textContent,
+      price: +it.querySelector(`.event__offer-price`).textContent,
+    });
+  }
+  );
+  const allUncheckedOffers = offers.filter((it)=>(!it.querySelector(`input`).checked)).map((it)=>{
+    return ({
+      title: it.querySelector(`.event__offer-title`).textContent,
+      price: +it.querySelector(`.event__offer-price`).textContent,
+    });
+  }
+  );
+
+  return ({
+    type: formData.get(`event-type`),
+    destination: formData.get(`event-destination`),
+    departureDate: new Date(formData.get(`event-start-time`)),
+    arrivalDate: new Date(formData.get(`event-end-time`)),
+    price: +formData.get(`event-price`),
+    checkedOffers: allCheckedOffers,
+    uncheckedOffers: allUncheckedOffers,
+  });
+};
 
 const createEventTypeItems = (eventTypes, checkedType) => {
   return eventTypes.map((eventType, index) => {
@@ -21,13 +51,13 @@ const createEventTypeItems = (eventTypes, checkedType) => {
   })
   .join(`\n`);
 };
-const createEventOfferItems = (offers, isChecked = false) => {
+const createEventOfferItems = (type, offers, isChecked, idStep) => {
   return offers.map((eventOffer, index) => {
-    const {type, title, price} = eventOffer;
+    const {title, price} = eventOffer;
     return (
       `<div class="event__offer-selector">
-                    <input class="event__offer-checkbox  visually-hidden" id="event-offer-${type}-${index + 1}" type="checkbox" name="event-offer-${type}" ${isChecked ? `checked` : ``}>
-                    <label class="event__offer-label" for="event-offer-${type}-${index + 1}">
+                    <input class="event__offer-checkbox  visually-hidden" id="event-offer-${type}-${idStep + index + 1}" type="checkbox" name="event-offer-${type}" ${isChecked ? `checked` : ``}>
+                    <label class="event__offer-label" for="event-offer-${type}-${idStep + index + 1}">
                       <span class="event__offer-title">${title}</span>
                       &plus;
                       &euro;&nbsp;<span class="event__offer-price">${price}</span>
@@ -56,7 +86,7 @@ const createOptionsTemplate = (pointDestinations) => {
 
 const createEditFormTemplate = (travelPoint, options) => {
   const {price, departureDate, arrivalDate, isFavorite} = travelPoint;
-  const {type, destination, description, photos, checkedOffers, uncheckedOffers} = options;
+  const {mode, type, destination, description, photos, checkedOffers, uncheckedOffers} = options;
   const preposition = findCorrectPrepostion(type);
   const startTime = formatTimeforInput(departureDate);
   const endTime = formatTimeforInput(arrivalDate);
@@ -114,9 +144,8 @@ const createEditFormTemplate = (travelPoint, options) => {
               </div>
 
               <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-              <button class="event__reset-btn" type="reset">Delete</button>
-
-              <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavorite ? `checked` : ``}>
+              <button class="event__reset-btn" type="reset">${mode === Mode.ADDING ? `Cancel` : `Delete`}</button>
+              ${mode === Mode.ADDING ? `` : ` <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavorite ? `checked` : ``}>
               <label class="event__favorite-btn" for="event-favorite-1">
                 <span class="visually-hidden">Add to favorite</span>
                 <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
@@ -125,7 +154,7 @@ const createEditFormTemplate = (travelPoint, options) => {
               </label>
               <button class="event__rollup-btn" type="button">
                 <span class="visually-hidden">Open event</span>
-              </button>
+              </button>`}
             </header>
             <section class="event__details">
             ${checkedOffers.length > 0 || uncheckedOffers.length > 0 ? `
@@ -133,10 +162,11 @@ const createEditFormTemplate = (travelPoint, options) => {
                 <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
                 <div class="event__available-offers">
-                  ${createEventOfferItems(checkedOffers, true)}
-                  ${createEventOfferItems(uncheckedOffers)}
+                  ${createEventOfferItems(type, checkedOffers, true, 0)}
+                  ${createEventOfferItems(type, uncheckedOffers, false, checkedOffers.length)}
                 </div>
               </section>` : ``}
+              ${mode === Mode.ADDING ? `` : `
               <section class="event__section  event__section--destination">
                 <h3 class="event__section-title  event__section-title--destination">Destination</h3>
                 <p class="event__destination-description">${description}</p>
@@ -145,8 +175,8 @@ const createEditFormTemplate = (travelPoint, options) => {
                   <div class="event__photos-tape">
                     ${createPhotoMarkup(photos)}
                   </div>
-                </div>
-              </section>
+                </div>`}
+              </section> 
             </section>
           </form>`
   );
@@ -154,10 +184,11 @@ const createEditFormTemplate = (travelPoint, options) => {
 
 
 export default class EditForm extends AbstractSmartComponent {
-  constructor(travelPoint) {
+  constructor(travelPoint, mode) {
     super();
 
     this._travelPoint = travelPoint;
+    this._mode = mode;
     this._type = travelPoint.type;
     this._departureDate = travelPoint.departureDate;
     this._arrivalDate = travelPoint.arrivalDate;
@@ -174,11 +205,13 @@ export default class EditForm extends AbstractSmartComponent {
     this._submitHandler = null;
     this._favoritesHandler = null;
     this._editCloseHandler = null;
+    this._deleteHandler = null;
 
   }
 
   getTemplate() {
     return createEditFormTemplate(this._travelPoint, {
+      mode: this._mode,
       type: this._type,
       destination: this._destination,
       description: this._description,
@@ -235,6 +268,7 @@ export default class EditForm extends AbstractSmartComponent {
   recoveryListeners() {
     this.setEditCloseButtonClickHandler(this._editCloseHandler);
     this.setSubmitHandler(this._submitHandler);
+    this.setDeleteButtonClickHandler(this._deleteHandler);
     this.setFavoritesButtonClickHandler(this._favoritesHandler);
     this._subscribeOnEvents();
 
@@ -269,6 +303,9 @@ export default class EditForm extends AbstractSmartComponent {
 
   }
   setFavoritesButtonClickHandler(handler) {
+    if (this._mode === `adding`) {
+      return;
+    }
     this.getElement().querySelector(`.event__favorite-checkbox`)
       .addEventListener(`click`, handler);
 
@@ -280,9 +317,23 @@ export default class EditForm extends AbstractSmartComponent {
     this._submitHandler = handler;
   }
   setEditCloseButtonClickHandler(handler) {
+    if (this._mode === `adding`) {
+      return;
+    }
     this.getElement().querySelector(`.event__rollup-btn`)
       .addEventListener(`click`, handler);
 
     this._editCloseHandler = handler;
+  }
+  setDeleteButtonClickHandler(handler) {
+    this.getElement().querySelector(`.event__reset-btn`)
+      .addEventListener(`click`, handler);
+
+    this._deleteHandler = handler;
+  }
+  getData() {
+    const form = this.getElement();
+    const formData = new FormData(form);
+    return parseFormData(formData, form);
   }
 }

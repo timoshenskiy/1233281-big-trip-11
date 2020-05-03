@@ -7,7 +7,7 @@ export default class FiltersController {
     this._container = container;
     this._pointsModel = pointsModel;
 
-    this._activeFilterType = FilterType.EVERYTHING;
+    this._activeFilterType = null;
     this._filtersComponent = null;
 
     this._onDataChange = this._onDataChange.bind(this);
@@ -17,6 +17,7 @@ export default class FiltersController {
   }
 
   render() {
+    this._activeFilterType = this._pointsModel.getActiveFilterType();
     const container = this._container;
     const filters = Object.values(FilterType).map((filterType) => {
       return {

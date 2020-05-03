@@ -18,5 +18,4 @@ export const getPointsByFilter = (travelPoints, filterType) => {
       return getPastPoints(travelPoints, nowDate);
   }
   return travelPoints;
-
 };
