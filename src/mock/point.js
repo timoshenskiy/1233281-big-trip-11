@@ -9,7 +9,7 @@ const generatePointType = () => {
 };
 const generateDepartureDate = () => {
   let departureDate = new Date();
-  departureDate.setMonth(getRandomIntegerNumber(0, 2));
+  departureDate.setMonth(getRandomIntegerNumber(3, 5));
   departureDate.setDate(getRandomIntegerNumber(1, 28));
   departureDate.setHours(getRandomIntegerNumber(0, 23));
   departureDate.setMinutes(getRandomIntegerNumber(0, 11) * 5);
@@ -55,6 +55,7 @@ const generateTravelPoint = () => {
   const placeInfo = placesInfo[getRandomIntegerNumber(0, placesInfo.length - 1)];
 
   return {
+    id: String(new Date() + Math.random()),
     type,
     destination: placeInfo.name,
     departureDate,

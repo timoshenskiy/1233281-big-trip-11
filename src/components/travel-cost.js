@@ -33,4 +33,9 @@ export default class TravelCost extends AbstractComponent {
   getTemplate() {
     return createTravelCostTemplate(this._travelPoints);
   }
+  updatePoints(travelPoints) {
+    this._travelPoints = travelPoints;
+    this._element.innerHTML = ``;
+    this._element.innerHTML = this.getTemplate();
+  }
 }

@@ -1,5 +1,6 @@
 import {makeFirstSymbolUppercase, formatTime, formatDate, formatDateDifference, findCorrectPrepostion} from '../utils/common.js';
 import AbstractComponent from './abstract-component.js';
+import {encode} from "he";
 
 const OFFER_VIEW_COUNT = 3;
 const createOffersList = (checkedOffers) => {
@@ -16,7 +17,8 @@ const createOffersList = (checkedOffers) => {
 };
 
 const createTravelPointTemplate = (travelPoint) => {
-  const {type, destination, departureDate, arrivalDate, price, checkedOffers} = travelPoint;
+  const {type, destination: notSanitizedDestination, departureDate, arrivalDate, price, checkedOffers} = travelPoint;
+  const destination = encode(notSanitizedDestination);
   const departureTime = formatTime(departureDate);
   const arrivalTime = formatTime(arrivalDate);
   const travelTime = formatDateDifference(departureDate, arrivalDate);
