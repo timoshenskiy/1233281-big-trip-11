@@ -4,6 +4,7 @@ import AbstractSmartComponent from './abstract-smart-component.js';
 import {placesInfo} from "../mock/place-info.js";
 import {offersForEvents} from "../mock/offers.js";
 import {Mode} from "../controllers/point.js";
+import {encode} from "he";
 import flatpickr from "flatpickr";
 
 import "flatpickr/dist/flatpickr.min.css";
@@ -86,7 +87,10 @@ const createOptionsTemplate = (pointDestinations) => {
 
 const createEditFormTemplate = (travelPoint, options) => {
   const {price, departureDate, arrivalDate, isFavorite} = travelPoint;
-  const {mode, type, destination, description, photos, checkedOffers, uncheckedOffers} = options;
+  const {mode, type, destination: notSanitizedDestination, description, photos, checkedOffers, uncheckedOffers} = options;
+
+  const destination = encode(notSanitizedDestination);
+
   const preposition = findCorrectPrepostion(type);
   const startTime = formatTimeforInput(departureDate);
   const endTime = formatTimeforInput(arrivalDate);
@@ -140,7 +144,7 @@ const createEditFormTemplate = (travelPoint, options) => {
                   <span class="visually-hidden">Price</span>
                   &euro;
                 </label>
-                <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price}">
+                <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${price}">
               </div>
 
               <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -289,16 +293,24 @@ export default class EditForm extends AbstractSmartComponent {
         this.rerender();
       });
     }
-    element.querySelector(`.event__input--destination`).addEventListener(`change`, (evt) => {
-      this._destination = evt.target.value;
-      for (const placeInfo of placesInfo) {
-        if (placeInfo.name === evt.target.value) {
-          this._description = placeInfo.description;
-          this._photos = placeInfo.photos;
+    const inputDestination = element.querySelector(`.event__input--destination`);
+    const submitButton = element.querySelector(`.event__save-btn`);
+    inputDestination.addEventListener(`change`, (evt) => {
+      const isCorrectValue = placesInfo.some((it)=>(it.name === evt.target.value));
+      if (isCorrectValue) {
+        this._destination = evt.target.value;
+        for (const placeInfo of placesInfo) {
+          submitButton.disabled = false;
+          if (placeInfo.name === evt.target.value) {
+            this._description = placeInfo.description;
+            this._photos = placeInfo.photos;
+          }
         }
+        this.rerender();
+      } else {
+        submitButton.disabled = true;
+        inputDestination.value = ``;
       }
-
-      this.rerender();
     });
 
   }
