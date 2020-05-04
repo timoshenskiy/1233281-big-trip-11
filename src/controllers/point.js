@@ -45,7 +45,6 @@ export default class PointController {
     this._travelPointComponent = new TravelPointComponent(travelPoint);
 
     this._travelPointComponent.setEditButtonClickHandler(() => {
-      console.log(this._onViewChange);
       this._onViewChange();
       this._replacePointToEdit();
       document.addEventListener(`keydown`, this._onEscKeyDown);
@@ -104,9 +103,9 @@ export default class PointController {
   }
   _replacePointToEdit() {
     replace(this._editFormComponent, this._travelPointComponent);
-    if(this._mode === Mode.DEFAULT) {
+    if (this._mode === Mode.DEFAULT) {
       this._mode = Mode.EDIT;
-    }  
+    }
   }
 
   _onEscKeyDown(evt) {
@@ -114,7 +113,7 @@ export default class PointController {
 
     if (isEscKey) {
       if (this._mode === Mode.ADDING) {
-        this._onDataChange(this, this._travelPointComponent.getElement(), null);
+        this._onDataChange(this, EmptyPoint, null);
       }
       this._replaceEditToPoint();
       document.removeEventListener(`keydown`, this._onEscKeyDown);

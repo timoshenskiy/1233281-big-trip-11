@@ -6,7 +6,6 @@ const calculateTotalCost = (travelPoints) => {
     let offersCost = 0;
     if (travelPoint.checkedOffers.length > 0) {
       offersCost = travelPoint.checkedOffers.reduce((sum, it) =>{
-        console.log(totalCost);
         return sum + it.price;
       }, 0);
     }

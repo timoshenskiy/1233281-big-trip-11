@@ -1,5 +1,4 @@
 import AbstractComponent from './abstract-component.js';
-import {Mode} from '../controllers/point.js';
 
 const createEmptyPointListTemplate = () => {
   return (

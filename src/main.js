@@ -8,7 +8,7 @@ import TripController from './controllers/trip-controller.js';
 import {generateTravelPoints} from './mock/point.js';
 import {render, RenderPosition} from "./utils/render.js";
 
-const TRAVEL_POINT_COUNT = 20;
+const TRAVEL_POINT_COUNT = 1;
 
 const points = generateTravelPoints(TRAVEL_POINT_COUNT);
 const pointsModel = new PointsModel();

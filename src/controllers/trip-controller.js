@@ -19,54 +19,6 @@ export const sortTravelPoints = (sortType, travelPoints) => {
       break;
   }
 };
-const renderSortedTravelPoints = (container, sortedTravelPoints, onDataChange, onViewChange) => {
-  const sortedTravelPointList = new TravelPointListComponent();
-  render(container, sortedTravelPointList.getElement(), RenderPosition.BEFOREEND);
-  for (const travelPoint of sortedTravelPoints) {
-    const pointController = new PointController(sortedTravelPointList.getPlaceForPoint(), onDataChange, onViewChange);
-    pointController.render(travelPoint);
-  }
-};
-const renderSorting = (container, pointsModel, sortingComponent, onDataChange, onViewChange) => {
-  render(container, sortingComponent.getElement(), RenderPosition.BEFOREEND);
-  sortingComponent.setSortTypeChangeHandler((sortType)=>{
-    container.innerHTML = ``;
-    if (sortType === SortType.EVENT) {
-      render(container, sortingComponent.getElement(), RenderPosition.BEFOREEND);
-      renderPoints(container, pointsModel.getPoints(), onDataChange);
-      return;
-    }
-    const sortedTravelPoints = pointsModel.getPoints().slice();
-    sortTravelPoints(sortType, sortedTravelPoints);
-    render(container, sortingComponent.getElement(), RenderPosition.BEFOREEND);
-    renderSortedTravelPoints(container, sortedTravelPoints, onDataChange, onViewChange);
-
-  });
-};
-
-
-const renderPoints = (container, travelPoints, onDataChange, onViewChange) => {
-  const pointControllers = [];
-  sortTravelPoints(SortType.EVENT, travelPoints);
-
-  let currentDate = travelPoints[0].departureDate;
-  let dayNumber = 1;
-  let travelPointList = new TravelPointListComponent(dayNumber, travelPoints[0].departureDate);
-  render(container, travelPointList.getElement(), RenderPosition.BEFOREEND);
-  for (const travelPoint of travelPoints) {
-    if (!(currentDate.getMonth() === travelPoint.departureDate.getMonth() && currentDate.getDate() === travelPoint.departureDate.getDate())) {
-      dayNumber++;
-      travelPointList = new TravelPointListComponent(dayNumber, travelPoint.departureDate);
-      render(container, travelPointList.getElement(), RenderPosition.BEFOREEND);
-    }
-    currentDate = travelPoint.departureDate;
-
-    const pointController = new PointController(travelPointList.getPlaceForPoint(), onDataChange, onViewChange);
-    pointControllers.push(pointController);
-    pointController.render(travelPoint);
-  }
-  return pointControllers;
-};
 
 export default class TripController {
   constructor(container, pointsModel, newEventComponent, travelCostComponent, travelInfoComponent, filtersController) {
@@ -84,7 +36,7 @@ export default class TripController {
     this._onTravelInfoChange = this._onTravelInfoChange.bind(this);
 
     this._noTravelPointsComponent = new NoTravelPointsComponent();
-  
+
     this._sortingComponent = new SortingComponent(SortType.EVENT);
     this._newEventComponent = newEventComponent;
     this._travelCostComponent = travelCostComponent;
@@ -107,7 +59,7 @@ export default class TripController {
   render() {
     this._travelPoints = this._pointsModel.getPoints();
     if (this._travelPoints.length > 0) {
-      this._pointControllers = renderSorting(this._container, this._pointsModel, this._sortingComponent, this._onDataChange, this._onViewChange);
+      this._renderSorting();
     } else {
       render(this._container, this._noTravelPointsComponent.getElement(), RenderPosition.BEFOREEND);
       return;
@@ -116,7 +68,25 @@ export default class TripController {
     this._addEventButton();
   }
   renderPoints() {
-    this._pointControllers = renderPoints(this._container, this._travelPoints, this._onDataChange, this._onViewChange);
+    const pointControllers = [];
+    sortTravelPoints(SortType.EVENT, this._pointsModel.getPoints());
+    let currentDate = this._pointsModel.getPoints()[0].departureDate;
+    let dayNumber = 1;
+    let travelPointList = new TravelPointListComponent(dayNumber, this._pointsModel.getPoints()[0].departureDate);
+    render(this._container, travelPointList.getElement(), RenderPosition.BEFOREEND);
+    for (const travelPoint of this._pointsModel.getPoints()) {
+      if (!(currentDate.getMonth() === travelPoint.departureDate.getMonth() && currentDate.getDate() === travelPoint.departureDate.getDate())) {
+        dayNumber++;
+        travelPointList = new TravelPointListComponent(dayNumber, travelPoint.departureDate);
+        render(this._container, travelPointList.getElement(), RenderPosition.BEFOREEND);
+      }
+      currentDate = travelPoint.departureDate;
+
+      const pointController = new PointController(travelPointList.getPlaceForPoint(), this._onDataChange, this._onViewChange);
+      pointControllers.push(pointController);
+      pointController.render(travelPoint);
+    }
+    return pointControllers;
   }
   _onViewChange() {
     if (this._creatingPoint) {
@@ -131,8 +101,10 @@ export default class TripController {
     if (oldData === EmptyPoint) {
       this._newEventComponent.setEnabled();
       this._creatingPoint = null;
+      // Отмена создания точки
       if (newData === null) {
         pointController.destroy();
+        this._newEventComponent.setEnabled();
       } else {
         this._pointsModel.addPoint(newData);
         pointController.render(newData, PointControllerMode.DEFAULT);
@@ -155,6 +127,7 @@ export default class TripController {
   }
   _onFilterChange() {
     this._updatePoints();
+    this._newEventComponent.setEnabled();
   }
   _removePoints() {
     this._pointControllers.forEach((pointController) => pointController.destroy());
@@ -169,12 +142,22 @@ export default class TripController {
     if (this._creatingPoint) {
       return;
     }
-    const travelPointList = new TravelPointListComponent();
-    const travelPointListElement = travelPointList.getElement();
+    if (this._pointsModel.getAllPoints().length === 0) {
+      const travelPointList = new TravelPointListComponent();
+      const travelPointListElement = travelPointList.getElement();
 
-    render(this._sortingComponent.getElement(), travelPointListElement, RenderPosition.AFTEREND);
-    this._creatingPoint = new PointController(travelPointList.getPlaceForPoint(), this._onDataChange, this._onViewChange);
-    this._creatingPoint.render(EmptyPoint, PointControllerMode.ADDING);
+      render(this._container, travelPointListElement, RenderPosition.AFTERBEGIN);
+      this._creatingPoint = new PointController(travelPointList.getPlaceForPoint(), this._onDataChange, this._onViewChange);
+      this._creatingPoint.render(EmptyPoint, PointControllerMode.ADDING);
+
+    } else {
+      const travelPointList = new TravelPointListComponent();
+      const travelPointListElement = travelPointList.getElement();
+
+      render(this._sortingComponent.getElement(), travelPointListElement, RenderPosition.AFTEREND);
+      this._creatingPoint = new PointController(travelPointList.getPlaceForPoint(), this._onDataChange, this._onViewChange);
+      this._creatingPoint.render(EmptyPoint, PointControllerMode.ADDING);
+    }
   }
 
   _addEventButton() {
@@ -186,5 +169,32 @@ export default class TripController {
       this._createPoint();
       this._newEventComponent.setDisabled();
     });
+  }
+  _renderSorting() {
+    render(this._container, this._sortingComponent.getElement(), RenderPosition.BEFOREEND);
+    this._sortingComponent.setSortTypeChangeHandler((sortType)=>{
+      this._container.innerHTML = ``;
+      if (sortType === SortType.EVENT) {
+        render(this._container, this._sortingComponent.getElement(), RenderPosition.BEFOREEND);
+        this.renderPoints(this._container, this._pointsModel.getPoints(), this._onDataChange);
+        return;
+      }
+      const sortedTravelPoints = this._pointsModel.getPoints().slice();
+      sortTravelPoints(sortType, sortedTravelPoints);
+      render(this._container, this._sortingComponent.getElement(), RenderPosition.BEFOREEND);
+      this._renderSortedTravelPoints(sortedTravelPoints);
+    });
+  }
+  _renderSortedTravelPoints(sortedTravelPoints) {
+    this._removePoints();
+    const sortedTravelPointList = new TravelPointListComponent();
+    render(this._container, sortedTravelPointList.getElement(), RenderPosition.BEFOREEND);
+    for (const travelPoint of sortedTravelPoints) {
+      const pointController = new PointController(sortedTravelPointList.getPlaceForPoint(), this._onDataChange, this._onViewChange);
+      pointController.render(travelPoint);
+      this._pointControllers.push(pointController);
+
+    }
+
   }
 }
