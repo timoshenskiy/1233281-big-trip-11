@@ -65,7 +65,7 @@ export default class TripController {
       return;
     }
     this.renderPoints();
-    this._setAddEventButtonClickHandler(()=>{
+    this._newEventComponent.setNewEventButtonClickHandler(()=>{
       this._sortingComponent.setDefault();
       this._filtersController.render();
       this._pointsModel.setFilter(FilterType.EVERYTHING);
@@ -167,9 +167,6 @@ export default class TripController {
     }
   }
 
-  _setAddEventButtonClickHandler(handler) {
-    this._newEventComponent.setNewEventButtonClickHandler(handler);
-  }
   _renderSorting() {
     render(this._container, this._sortingComponent.getElement(), RenderPosition.BEFOREEND);
     this._sortingComponent.setSortTypeChangeHandler((sortType)=>{
@@ -196,5 +193,12 @@ export default class TripController {
 
     }
 
+  }
+  hide() {
+    this._container.classList.add(`visually-hidden`);
+  }
+
+  show() {
+    this._container.classList.remove(`visually-hidden`);
   }
 }

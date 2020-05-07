@@ -5,7 +5,7 @@ import {placesInfo} from './place-info.js';
 
 const generatePointType = () => {
   const pointTypeArray = Math.random() > 0.5 ? POINT_TYPES_TRANSFER : POINT_TYPES_ACTIVITY;
-  return pointTypeArray[getRandomIntegerNumber(0, pointTypeArray.length - 1)];
+  return pointTypeArray[getRandomIntegerNumber(0, pointTypeArray.length)];
 };
 const generateDepartureDate = () => {
   let departureDate = new Date();

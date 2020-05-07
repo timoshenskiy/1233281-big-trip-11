@@ -2,6 +2,7 @@ import TravelInfoComponent from './components/travel-info.js';
 import TravelCostComponent from './components/travel-cost.js';
 import SiteMenuComponent from './components/site-menu.js';
 import NewEventComponent from './components/new-event.js';
+import StatisticsComponent from "./components/statistics.js";
 import FiltersController from "./controllers/filters.js";
 import PointsModel from "./models/points.js";
 import TripController from './controllers/trip-controller.js';
@@ -38,3 +39,6 @@ const siteMainElement = document.querySelector(`.trip-events`);
 const tripController = new TripController(siteMainElement, pointsModel, newEventComponent, travelCostComponent, travelInfoComponent, filtersController);
 tripController.render(points, siteHeaderElement);
 
+const statisticsComponent = new StatisticsComponent(pointsModel);
+render(siteMainElement, statisticsComponent.getElement(), RenderPosition.AFTEREND);
+tripController.hide();
