@@ -2,11 +2,14 @@ import TravelInfoComponent from './components/travel-info.js';
 import TravelCostComponent from './components/travel-cost.js';
 import SiteMenuComponent from './components/site-menu.js';
 import NewEventComponent from './components/new-event.js';
+import StatisticsComponent from "./components/statistics.js";
 import FiltersController from "./controllers/filters.js";
 import PointsModel from "./models/points.js";
 import TripController from './controllers/trip-controller.js';
 import {generateTravelPoints} from './mock/point.js';
 import {render, RenderPosition} from "./utils/render.js";
+
+import {SiteTabs} from './components/site-menu.js';
 
 const TRAVEL_POINT_COUNT = 20;
 
@@ -23,7 +26,8 @@ const tripCostElement = siteHeaderElement.querySelector(`.trip-info`);
 render(tripCostElement, travelCostComponent.getElement(), RenderPosition.BEFOREEND);
 
 const menuElement = siteHeaderElement.querySelector(`.trip-controls h2`);
-render(menuElement, new SiteMenuComponent().getElement(), RenderPosition.AFTEREND);
+const siteMenuComponent = new SiteMenuComponent();
+render(menuElement, siteMenuComponent.getElement(), RenderPosition.AFTEREND);
 
 const filterElement = siteHeaderElement.querySelector(`.trip-controls`);
 
@@ -37,4 +41,23 @@ const siteMainElement = document.querySelector(`.trip-events`);
 
 const tripController = new TripController(siteMainElement, pointsModel, newEventComponent, travelCostComponent, travelInfoComponent, filtersController);
 tripController.render(points, siteHeaderElement);
+
+const statisticsComponent = new StatisticsComponent(pointsModel);
+render(siteMainElement, statisticsComponent.getElement(), RenderPosition.AFTEREND);
+statisticsComponent.hide();
+
+siteMenuComponent.setTableButtonClickHandler(()=>{
+  const currentTab = siteMenuComponent.getCurrentTab();
+  switch (currentTab) {
+    case SiteTabs.TABLE:
+      tripController.show();
+      statisticsComponent.hide();
+      break;
+    case SiteTabs.STATS:
+      tripController.hide();
+      statisticsComponent.show();
+      break;
+  }
+
+});
 

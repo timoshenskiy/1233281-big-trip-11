@@ -1,6 +1,6 @@
 import AbstractComponent from './abstract-component.js';
 
-const calculateTotalCost = (travelPoints) => {
+export const calculateTotalCost = (travelPoints) => {
   let totalCost = 0;
   for (const travelPoint of travelPoints) {
     let offersCost = 0;

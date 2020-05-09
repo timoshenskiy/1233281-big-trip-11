@@ -41,6 +41,7 @@ export default class Sorting extends AbstractComponent {
     super();
 
     this._currentSortType = sortType;
+    this._handler = null;
   }
   getTemplate() {
     return createSortTemplate(this._currentSortType);
@@ -58,13 +59,13 @@ export default class Sorting extends AbstractComponent {
       }
 
       const sortType = evt.target.dataset.sortType;
-
       if (this._currentSortType === sortType) {
         return;
       }
 
       this._currentSortType = sortType;
       this.refreshElement();
+      this._handler = handler;
       handler(this._currentSortType);
     });
   }
