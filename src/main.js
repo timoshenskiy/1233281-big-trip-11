@@ -9,6 +9,8 @@ import TripController from './controllers/trip-controller.js';
 import {generateTravelPoints} from './mock/point.js';
 import {render, RenderPosition} from "./utils/render.js";
 
+import {SiteTabs} from './components/site-menu.js';
+
 const TRAVEL_POINT_COUNT = 20;
 
 const points = generateTravelPoints(TRAVEL_POINT_COUNT);
@@ -24,7 +26,8 @@ const tripCostElement = siteHeaderElement.querySelector(`.trip-info`);
 render(tripCostElement, travelCostComponent.getElement(), RenderPosition.BEFOREEND);
 
 const menuElement = siteHeaderElement.querySelector(`.trip-controls h2`);
-render(menuElement, new SiteMenuComponent().getElement(), RenderPosition.AFTEREND);
+const siteMenuComponent = new SiteMenuComponent();
+render(menuElement, siteMenuComponent.getElement(), RenderPosition.AFTEREND);
 
 const filterElement = siteHeaderElement.querySelector(`.trip-controls`);
 
@@ -41,4 +44,20 @@ tripController.render(points, siteHeaderElement);
 
 const statisticsComponent = new StatisticsComponent(pointsModel);
 render(siteMainElement, statisticsComponent.getElement(), RenderPosition.AFTEREND);
-tripController.hide();
+statisticsComponent.hide();
+
+siteMenuComponent.setTableButtonClickHandler(()=>{
+  const currentTab = siteMenuComponent.getCurrentTab();
+  switch (currentTab) {
+    case SiteTabs.TABLE:
+      tripController.show();
+      statisticsComponent.hide();
+      break;
+    case SiteTabs.STATS:
+      tripController.hide();
+      statisticsComponent.show();
+      break;
+  }
+
+});
+

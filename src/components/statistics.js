@@ -2,6 +2,7 @@ import AbstractSmartComponent from "./abstract-smart-component.js";
 import Chart from "chart.js";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {calculateTotalCost} from './travel-cost.js';
+import {findCorrectPrepostion} from '../utils/common.js';
 
 const emojiMap = {
   taxi: `🚕`,
@@ -36,6 +37,15 @@ const getTotalCostOfType = (travelPoints, type) => {
   }
   return calculateTotalCost(travelPointsOfSelectedType);
 };
+const getTotalCountOfType = (travelPoints, type) => {
+  const travelPointsOfSelectedType = [];
+  for (const travelPoint of travelPoints) {
+    if (travelPoint.type === type) {
+      travelPointsOfSelectedType.push(travelPoint);
+    }
+  }
+  return travelPointsOfSelectedType.length;
+};
 
 const sortMoneyInfo = (allDifferentTypes, totalPrices) => {
   const moneyInfo = allDifferentTypes.map((it, index) => {
@@ -48,20 +58,30 @@ const sortMoneyInfo = (allDifferentTypes, totalPrices) => {
   return moneyInfo;
 
 };
+const sortTransportInfo = (allDifferentTypes, totalCount) => {
+  const transportInfo = allDifferentTypes.map((it, index) => {
+    return {
+      type: it,
+      count: totalCount[index],
+    };
+  });
+  transportInfo.sort((a, b) => (b.count - a.count));
+  return transportInfo;
+
+};
 const renderMoneyChart = (moneyCtx, travelPoints) => {
   const allDifferentTypes = getAllDifferentTypes(travelPoints);
   const totalPrices = [];
   for (const type of allDifferentTypes) {
     totalPrices.push(getTotalCostOfType(travelPoints, type));
   }
-  const moneyInfo = sortMoneyInfo(allDifferentTypes, totalPrices);
-  const sortedPrices = moneyInfo.map((it)=>{
+  const sortedMoneyInfo = sortMoneyInfo(allDifferentTypes, totalPrices);
+  const sortedPrices = sortedMoneyInfo.map((it)=>{
     return it.totalCost;
   });
-  const sortedTypes = moneyInfo.map((it)=>{
+  const sortedTypes = sortedMoneyInfo.map((it)=>{
     return it.type;
   });
-
 
   const labels = sortedTypes.map((it)=>{
     if (it === `check-in`) {
@@ -69,7 +89,6 @@ const renderMoneyChart = (moneyCtx, travelPoints) => {
     }
     return `${emojiMap[it]} ${it.toUpperCase()}`;
   });
-
 
   return new Chart(moneyCtx, {
     plugins: [ChartDataLabels],
@@ -80,7 +99,9 @@ const renderMoneyChart = (moneyCtx, travelPoints) => {
         data: sortedPrices,
         backgroundColor: `#ffffff`,
         hoverBackgroundColor: `#ffffff`,
-        anchor: `start`
+        anchor: `start`,
+        barThickness: 44,
+        minBarLength: 50,
       }]
     },
     options: {
@@ -113,7 +134,6 @@ const renderMoneyChart = (moneyCtx, travelPoints) => {
             display: false,
             drawBorder: false
           },
-          // barThickness: 44,
         }],
         xAxes: [{
           ticks: {
@@ -124,7 +144,6 @@ const renderMoneyChart = (moneyCtx, travelPoints) => {
             display: false,
             drawBorder: false
           },
-          // minBarLength: 50
         }],
       },
       legend: {
@@ -136,17 +155,39 @@ const renderMoneyChart = (moneyCtx, travelPoints) => {
     }
   });
 };
-const renderTransportChart = (transportCtx) => {
+const renderTransportChart = (transportCtx, travelPoints) => {
+  const allDifferentTypes = getAllDifferentTypes(travelPoints);
+  const totalCountPointsOfTypes = [];
+  for (const type of allDifferentTypes) {
+    totalCountPointsOfTypes.push(getTotalCountOfType(travelPoints, type));
+  }
+  const sortedTransportInfo = sortTransportInfo(allDifferentTypes, totalCountPointsOfTypes);
+  const sortedNumberOfRepetitions = sortedTransportInfo.map((it)=>{
+    return it.count;
+  });
+  const sortedTypes = sortedTransportInfo.map((it)=>{
+    return it.type;
+  });
+
+  const labels = sortedTypes.map((it)=>{
+    if (it === `check-in`) {
+      return `${emojiMap[`check`]} ${it.toUpperCase()}`;
+    }
+    return `${emojiMap[it]} ${it.toUpperCase()}`;
+  });
+
   return new Chart(transportCtx, {
     plugins: [ChartDataLabels],
     type: `horizontalBar`,
     data: {
-      labels: [`FLY`, `DRIVE`, `RIDE`],
+      labels,
       datasets: [{
-        data: [4, 2, 1],
+        data: sortedNumberOfRepetitions,
         backgroundColor: `#ffffff`,
         hoverBackgroundColor: `#ffffff`,
-        anchor: `start`
+        anchor: `start`,
+        barThickness: 44,
+        minBarLength: 50,
       }]
     },
     options: {
@@ -179,7 +220,6 @@ const renderTransportChart = (transportCtx) => {
             display: false,
             drawBorder: false
           },
-          // barThickness: 44,
         }],
         xAxes: [{
           ticks: {
@@ -190,7 +230,6 @@ const renderTransportChart = (transportCtx) => {
             display: false,
             drawBorder: false
           },
-          // minBarLength: 50
         }],
       },
       legend: {
@@ -203,14 +242,27 @@ const renderTransportChart = (transportCtx) => {
   });
 };
 
-const renderTimeChart = (timeCtx) => {
+const renderTimeChart = (timeCtx, travelPoints) => {
+  travelPoints.sort((a, b) => ((b.arrivalDate - b.departureDate) - (a.arrivalDate - a.departureDate)));
+
+  const totalTimeSpend = travelPoints.map((it)=>{
+    return it.arrivalDate - it.departureDate;
+  });
+
+  const labels = travelPoints.map((it)=>{
+    if (it.type === `check-in`) {
+      return `${emojiMap[`check`]} ${it.type.toUpperCase()} ${it.destination.toUpperCase()}`;
+    }
+    return `${emojiMap[it.type]} ${it.type.toUpperCase()} ${findCorrectPrepostion(it.type).toUpperCase()} ${it.destination.toUpperCase()}`;
+  });
+
   return new Chart(timeCtx, {
     plugins: [ChartDataLabels],
     type: `horizontalBar`,
     data: {
-      labels: [`FLY`, `DRIVE`, `RIDE`],
+      labels,
       datasets: [{
-        data: [4, 2, 1],
+        data: totalTimeSpend,
         backgroundColor: `#ffffff`,
         hoverBackgroundColor: `#ffffff`,
         anchor: `start`
@@ -225,7 +277,7 @@ const renderTimeChart = (timeCtx) => {
           color: `#000000`,
           anchor: `end`,
           align: `start`,
-          formatter: (val) => `${val}x`
+          formatter: (val) => `${Math.floor((val / 1000 / 60 / 60))}H`
         }
       },
       title: {
@@ -233,7 +285,9 @@ const renderTimeChart = (timeCtx) => {
         text: `TIME SPENT`,
         fontColor: `#000000`,
         fontSize: 23,
-        position: `left`
+        position: `left`,
+        barThickness: 44,
+        minBarLength: 50,
       },
       scales: {
         yAxes: [{
@@ -246,7 +300,6 @@ const renderTimeChart = (timeCtx) => {
             display: false,
             drawBorder: false
           },
-          // barThickness: 44,
         }],
         xAxes: [{
           ticks: {
@@ -257,7 +310,6 @@ const renderTimeChart = (timeCtx) => {
             display: false,
             drawBorder: false
           },
-          // minBarLength: 50
         }],
       },
       legend: {
@@ -297,6 +349,9 @@ export default class Statistics extends AbstractSmartComponent {
     this._timeChart = null;
     this._pointsModel = pointsModel;
 
+    this._onDataChange = this._onDataChange.bind(this);
+    this._pointsModel.setDataChangeHandler(this._onDataChange);
+
     this._renderCharts();
   }
 
@@ -306,20 +361,28 @@ export default class Statistics extends AbstractSmartComponent {
   _renderCharts() {
     const element = this.getElement();
 
-
     const moneyCtx = element.querySelector(`.statistics__chart--money`);
     const transportCtx = element.querySelector(`.statistics__chart--transport`);
     const timeSpendCtx = element.querySelector(`.statistics__chart--time`);
 
-    // Рассчитаем высоту канваса в зависимости от того, сколько данных в него будет передаваться
     const BAR_HEIGHT = 55;
     moneyCtx.height = BAR_HEIGHT * 8;
-    transportCtx.height = BAR_HEIGHT * 4;
-    timeSpendCtx.height = BAR_HEIGHT * 4;
+    transportCtx.height = BAR_HEIGHT * 8;
+    timeSpendCtx.height = BAR_HEIGHT * 16;
 
     this._moneyChart = renderMoneyChart(moneyCtx, this._pointsModel.getAllPoints());
-    this._transportChart = renderTransportChart(transportCtx);
-    this._timeChart = renderTimeChart(timeSpendCtx);
+    this._transportChart = renderTransportChart(transportCtx, this._pointsModel.getAllPoints());
+    this._timeChart = renderTimeChart(timeSpendCtx, this._pointsModel.getAllPoints());
+  }
+  rerender() {
+    super.rerender();
+    this._renderCharts();
+
+  }
+  recoveryListeners() {}
+  _onDataChange() {
+    this.rerender();
+    this.hide();
   }
 
 }

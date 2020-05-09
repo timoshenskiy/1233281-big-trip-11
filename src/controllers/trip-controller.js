@@ -2,6 +2,7 @@ import PointController, {EmptyPoint, Mode as PointControllerMode} from './point.
 import SortingComponent, {SortType} from '../components/sorting.js';
 import NoTravelPointsComponent from '../components/no-travel-points.js';
 import TravelPointListComponent from '../components/travel-point-list.js';
+import {Mode} from './point.js';
 import {render, RenderPosition} from "../utils/render.js";
 import {FilterType} from '../const.js';
 
@@ -37,6 +38,8 @@ export default class TripController {
 
     this._noTravelPointsComponent = new NoTravelPointsComponent();
 
+    this.hide = this.hide.bind(this);
+
     this._sortingComponent = new SortingComponent(SortType.EVENT);
     this._newEventComponent = newEventComponent;
     this._travelCostComponent = travelCostComponent;
@@ -45,8 +48,6 @@ export default class TripController {
     this._filtersController = filtersController;
 
     this._pointsModel.setFilterChangeHandler(this._onFilterChange);
-
-    // Подписываю на изменения информации для сортировки и стоимости пути
     this._pointsModel.setDataChangeHandler(this._onTravelInfoChange);
     this._pointsModel.setDataChangeHandler(this._onTravelCostChange);
   }
@@ -91,9 +92,9 @@ export default class TripController {
 
       const pointController = new PointController(travelPointList.getPlaceForPoint(), this._onDataChange, this._onViewChange);
       pointControllers.push(pointController);
-      pointController.render(travelPoint);
+      pointController.render(travelPoint, Mode.DEFAULT);
     }
-    return pointControllers;
+    this._pointControllers = pointControllers;
   }
   _onViewChange() {
     if (this._creatingPoint) {
@@ -104,7 +105,7 @@ export default class TripController {
     this._pointControllers.forEach((it) => it.setDefaultView());
   }
   _onDataChange(pointController, oldData, newData) {
-    // 1) Если старые данные это пустая точка, значит это добавление новой точки
+    // Если старые данные это пустая точка, значит это добавление новой точки
     if (oldData === EmptyPoint) {
       this._newEventComponent.setEnabled();
       this._creatingPoint = null;
@@ -174,12 +175,13 @@ export default class TripController {
       if (sortType === SortType.EVENT) {
         render(this._container, this._sortingComponent.getElement(), RenderPosition.BEFOREEND);
         this.renderPoints(this._container, this._pointsModel.getPoints(), this._onDataChange);
-        return;
+      } else {
+        const sortedTravelPoints = this._pointsModel.getPoints().slice();
+        sortTravelPoints(sortType, sortedTravelPoints);
+        render(this._container, this._sortingComponent.getElement(), RenderPosition.BEFOREEND);
+        this._renderSortedTravelPoints(sortedTravelPoints);
       }
-      const sortedTravelPoints = this._pointsModel.getPoints().slice();
-      sortTravelPoints(sortType, sortedTravelPoints);
-      render(this._container, this._sortingComponent.getElement(), RenderPosition.BEFOREEND);
-      this._renderSortedTravelPoints(sortedTravelPoints);
+
     });
   }
   _renderSortedTravelPoints(sortedTravelPoints) {
@@ -188,11 +190,9 @@ export default class TripController {
     render(this._container, sortedTravelPointList.getElement(), RenderPosition.BEFOREEND);
     for (const travelPoint of sortedTravelPoints) {
       const pointController = new PointController(sortedTravelPointList.getPlaceForPoint(), this._onDataChange, this._onViewChange);
-      pointController.render(travelPoint);
+      pointController.render(travelPoint, Mode.DEFAULT);
       this._pointControllers.push(pointController);
-
     }
-
   }
   hide() {
     this._container.classList.add(`visually-hidden`);

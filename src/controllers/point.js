@@ -45,6 +45,7 @@ export default class PointController {
     this._travelPointComponent = new TravelPointComponent(travelPoint);
 
     this._travelPointComponent.setEditButtonClickHandler(() => {
+      this._mode = Mode.EDIT;
       this._onViewChange();
       this._replacePointToEdit();
       document.addEventListener(`keydown`, this._onEscKeyDown);
