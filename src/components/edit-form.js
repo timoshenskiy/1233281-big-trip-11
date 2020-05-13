@@ -1,8 +1,6 @@
-import {POINT_TYPES_TRANSFER, POINT_TYPES_ACTIVITY, POINT_DESTINATIONS} from '../const.js';
-import {makeFirstSymbolUppercase, formatTimeforInput, findCorrectPrepostion} from '../utils/common.js';
+import {POINT_TYPES_TRANSFER, POINT_TYPES_ACTIVITY} from '../const.js';
+import {makeFirstSymbolUppercase, formatTimeforInput, findCorrectPrepostion, stopInteractionWithApplication} from '../utils/common.js';
 import AbstractSmartComponent from './abstract-smart-component.js';
-import {placesInfo} from "../mock/place-info.js";
-import {offersForEvents} from "../mock/offers.js";
 import {Mode} from "../controllers/point.js";
 import {encode} from "he";
 import flatpickr from "flatpickr";
@@ -10,34 +8,10 @@ import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 
 
-const parseFormData = (formData, form) => {
-  const offers = Array.from(form.querySelectorAll(`.event__offer-selector`));
-  const allCheckedOffers = offers.filter((it)=>(it.querySelector(`input`).checked)).map((it)=>{
-    return ({
-      title: it.querySelector(`.event__offer-title`).textContent,
-      price: +it.querySelector(`.event__offer-price`).textContent,
-    });
-  }
-  );
-  const allUncheckedOffers = offers.filter((it)=>(!it.querySelector(`input`).checked)).map((it)=>{
-    return ({
-      title: it.querySelector(`.event__offer-title`).textContent,
-      price: +it.querySelector(`.event__offer-price`).textContent,
-    });
-  }
-  );
-
-  return ({
-    type: formData.get(`event-type`),
-    destination: formData.get(`event-destination`),
-    departureDate: new Date(formData.get(`event-start-time`)),
-    arrivalDate: new Date(formData.get(`event-end-time`)),
-    price: +formData.get(`event-price`),
-    checkedOffers: allCheckedOffers,
-    uncheckedOffers: allUncheckedOffers,
-  });
+const NotificationMessages = {
+  SAVING: `Saving...`,
+  DELETING: `Deleting...`
 };
-
 const createEventTypeItems = (eventTypes, checkedType) => {
   return eventTypes.map((eventType, index) => {
     let isChecked = false;
@@ -52,13 +26,22 @@ const createEventTypeItems = (eventTypes, checkedType) => {
   })
   .join(`\n`);
 };
-const createEventOfferItems = (type, offers, isChecked, idStep) => {
-  return offers.map((eventOffer, index) => {
-    const {title, price} = eventOffer;
+const createEventOfferItems = (type, checkedOffers, allOffers) => {
+  let offersOfCurrentType = [];
+  for (const offersOfOneType of allOffers) {
+    if (offersOfOneType.type === type) {
+      offersOfCurrentType = offersOfOneType.offers;
+    }
+  }
+  return offersOfCurrentType.map((offer, index) => {
+    const {title, price} = offer;
+    const isChecked = checkedOffers.some((it) => {
+      return (it.title === title && it.price === price);
+    });
     return (
       `<div class="event__offer-selector">
-                    <input class="event__offer-checkbox  visually-hidden" id="event-offer-${type}-${idStep + index + 1}" type="checkbox" name="event-offer-${type}" ${isChecked ? `checked` : ``}>
-                    <label class="event__offer-label" for="event-offer-${type}-${idStep + index + 1}">
+                    <input class="event__offer-checkbox  visually-hidden" id="event-offer-${type}-${index + 1}" type="checkbox" name="event-offer-${type}" ${isChecked ? `checked` : ``}>
+                    <label class="event__offer-label" for="event-offer-${type}-${index + 1}">
                       <span class="event__offer-title">${title}</span>
                       &plus;
                       &euro;&nbsp;<span class="event__offer-price">${price}</span>
@@ -71,12 +54,16 @@ const createEventOfferItems = (type, offers, isChecked, idStep) => {
 
 const createPhotoMarkup = (photos) => {
   return photos.map((it) => {
-    return `<img class="event__photo" src="${it}" alt="Event photo">`;
+    return `<img class="event__photo" src="${it.src}" alt="${it.description}">`;
   }).join(`\n`);
 };
 
 const createOptionsTemplate = (pointDestinations) => {
-  return pointDestinations.map((it) => {
+  const destinationsNames = [];
+  pointDestinations.forEach((it)=>{
+    destinationsNames.push(it.name);
+  });
+  return destinationsNames.map((it) => {
     return (
       `<option value="${it}"></option>`);
   })
@@ -87,13 +74,14 @@ const createOptionsTemplate = (pointDestinations) => {
 
 const createEditFormTemplate = (travelPoint, options) => {
   const {price, departureDate, arrivalDate, isFavorite} = travelPoint;
-  const {mode, type, destination: notSanitizedDestination, description, photos, checkedOffers, uncheckedOffers} = options;
+  const {mode, type, destination: notSanitizedDestination, description, photos, allOffers, destinations, checkedOffers} = options;
 
   const destination = encode(notSanitizedDestination);
 
   const preposition = findCorrectPrepostion(type);
   const startTime = formatTimeforInput(departureDate);
   const endTime = formatTimeforInput(arrivalDate);
+
   return (
     `<form class="trip-events__item  event  event--edit" action="#" method="post">
             <header class="event__header">
@@ -123,7 +111,7 @@ const createEditFormTemplate = (travelPoint, options) => {
                 </label>
                 <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1">
                 <datalist id="destination-list-1">
-                  ${createOptionsTemplate(POINT_DESTINATIONS)}
+                  ${createOptionsTemplate(destinations)}
                 </datalist>
               </div>
 
@@ -161,13 +149,12 @@ const createEditFormTemplate = (travelPoint, options) => {
               </button>`}
             </header>
             <section class="event__details">
-            ${checkedOffers.length > 0 || uncheckedOffers.length > 0 ? `
+            ${allOffers.length > 0 ? `
               <section class="event__section  event__section--offers">
                 <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
                 <div class="event__available-offers">
-                  ${createEventOfferItems(type, checkedOffers, true, 0)}
-                  ${createEventOfferItems(type, uncheckedOffers, false, checkedOffers.length)}
+                  ${createEventOfferItems(type, checkedOffers, allOffers)}
                 </div>
               </section>` : ``}
               ${mode === Mode.ADDING ? `` : `
@@ -188,7 +175,7 @@ const createEditFormTemplate = (travelPoint, options) => {
 
 
 export default class EditForm extends AbstractSmartComponent {
-  constructor(travelPoint, mode) {
+  constructor(travelPoint, mode, offers, destinations) {
     super();
 
     this._travelPoint = travelPoint;
@@ -200,7 +187,10 @@ export default class EditForm extends AbstractSmartComponent {
     this._description = travelPoint.description;
     this._photos = travelPoint.photos;
     this._checkedOffers = travelPoint.checkedOffers;
-    this._uncheckedOffers = travelPoint.uncheckedOffers;
+
+    this._offers = offers;
+    this._destinations = destinations;
+
     this._subscribeOnEvents();
     this._applyFlatpickr();
 
@@ -220,8 +210,9 @@ export default class EditForm extends AbstractSmartComponent {
       destination: this._destination,
       description: this._description,
       photos: this._photos,
+      allOffers: this._offers,
+      destinations: this._destinations,
       checkedOffers: this._checkedOffers,
-      uncheckedOffers: this._uncheckedOffers,
     });
   }
   rerender() {
@@ -284,11 +275,6 @@ export default class EditForm extends AbstractSmartComponent {
       label.addEventListener(`click`, (evt) => {
         this._type = evt.target.textContent.toLowerCase();
         this._checkedOffers = [];
-        for (const offersForEvent of offersForEvents) {
-          if (offersForEvent.type === this._type) {
-            this._uncheckedOffers = offersForEvent.list;
-          }
-        }
 
         this.rerender();
       });
@@ -296,14 +282,14 @@ export default class EditForm extends AbstractSmartComponent {
     const inputDestination = element.querySelector(`.event__input--destination`);
     const submitButton = element.querySelector(`.event__save-btn`);
     inputDestination.addEventListener(`change`, (evt) => {
-      const isCorrectValue = placesInfo.some((it)=>(it.name === evt.target.value));
+      const isCorrectValue = this._destinations.some((it)=>(it.name === evt.target.value));
       if (isCorrectValue) {
         this._destination = evt.target.value;
-        for (const placeInfo of placesInfo) {
+        for (const placeInfo of this._destinations) {
           submitButton.disabled = false;
           if (placeInfo.name === evt.target.value) {
             this._description = placeInfo.description;
-            this._photos = placeInfo.photos;
+            this._photos = placeInfo.pictures;
           }
         }
         this.rerender();
@@ -345,7 +331,15 @@ export default class EditForm extends AbstractSmartComponent {
   }
   getData() {
     const form = this.getElement();
-    const formData = new FormData(form);
-    return parseFormData(formData, form);
+    return {
+      id: this._travelPoint.id,
+      isFavorite: this._travelPoint.isFavorite,
+      formData: new FormData(form),
+    };
+  }
+  showNotificationAboutSaving() {
+    this.getElement().querySelector(`.event__save-btn`).textContent = NotificationMessages.SAVING;
+    stopInteractionWithApplication();
+
   }
 }

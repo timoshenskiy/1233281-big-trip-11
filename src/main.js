@@ -1,3 +1,4 @@
+import API from "./api.js";
 import TravelInfoComponent from './components/travel-info.js';
 import TravelCostComponent from './components/travel-cost.js';
 import SiteMenuComponent from './components/site-menu.js';
@@ -6,22 +7,21 @@ import StatisticsComponent from "./components/statistics.js";
 import FiltersController from "./controllers/filters.js";
 import PointsModel from "./models/points.js";
 import TripController from './controllers/trip-controller.js';
-import {generateTravelPoints} from './mock/point.js';
+import LoadingListComponent from './components/loading-list.js';
 import {render, RenderPosition} from "./utils/render.js";
 
 import {SiteTabs} from './components/site-menu.js';
 
-const TRAVEL_POINT_COUNT = 20;
+const AUTHORIZATION = `Basic FKGNDFkfjghdl`;
 
-const points = generateTravelPoints(TRAVEL_POINT_COUNT);
+const api = new API(AUTHORIZATION);
 const pointsModel = new PointsModel();
-pointsModel.setPoints(points);
 
 const siteHeaderElement = document.querySelector(`.trip-main`);
-const travelInfoComponent = new TravelInfoComponent(points);
+const travelInfoComponent = new TravelInfoComponent(pointsModel);
 render(siteHeaderElement, travelInfoComponent.getElement(), RenderPosition.AFTERBEGIN);
 
-const travelCostComponent = new TravelCostComponent(points);
+const travelCostComponent = new TravelCostComponent(pointsModel);
 const tripCostElement = siteHeaderElement.querySelector(`.trip-info`);
 render(tripCostElement, travelCostComponent.getElement(), RenderPosition.BEFOREEND);
 
@@ -39,8 +39,7 @@ render(siteHeaderElement, newEventComponent.getElement(), RenderPosition.BEFOREE
 
 const siteMainElement = document.querySelector(`.trip-events`);
 
-const tripController = new TripController(siteMainElement, pointsModel, newEventComponent, travelCostComponent, travelInfoComponent, filtersController);
-tripController.render(points, siteHeaderElement);
+const tripController = new TripController(siteMainElement, pointsModel, newEventComponent, travelCostComponent, travelInfoComponent, filtersController, api);
 
 const statisticsComponent = new StatisticsComponent(pointsModel);
 render(siteMainElement, statisticsComponent.getElement(), RenderPosition.AFTEREND);
@@ -60,4 +59,29 @@ siteMenuComponent.setTableButtonClickHandler(()=>{
   }
 
 });
+
+const loadingListComponent = new LoadingListComponent();
+
+render(siteMainElement, loadingListComponent.getElement(), RenderPosition.BEFOREEND);
+
+api.getOffers()
+  .then((offers) => {
+    tripController.setOffers(offers);
+    api.getDestinations()
+      .then((destinations) => {
+        tripController.setDestinations(destinations);
+        api.getPoints()
+         .then((points) => {
+           loadingListComponent.hide();
+           pointsModel.setPoints(points);
+           loadingListComponent.hide();
+           tripController.render([], siteHeaderElement);
+         })
+         .catch(()=>{
+           loadingListComponent.hide();
+           tripController.render([], siteHeaderElement);
+         });
+      });
+  });
+
 

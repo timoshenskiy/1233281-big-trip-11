@@ -24,10 +24,11 @@ const createTravelCostTemplate = (travelPoints) => {
 };
 
 export default class TravelCost extends AbstractComponent {
-  constructor(travelPoints) {
+  constructor(pointsModel) {
     super();
 
-    this._travelPoints = travelPoints;
+    this.pointsModel = pointsModel;
+    this._travelPoints = pointsModel.getAllPoints();
   }
 
   getTemplate() {
