@@ -38,10 +38,11 @@ const createTravelInfoTemplate = (points) => {
 };
 
 export default class TravelInfo extends AbstractComponent {
-  constructor(travelPoints) {
+  constructor(pointsModel) {
     super();
 
-    this._travelPoints = travelPoints;
+    this.pointsModel = pointsModel;
+    this._travelPoints = pointsModel.getAllPoints();
   }
   getTemplate() {
     return createTravelInfoTemplate(this._travelPoints);
