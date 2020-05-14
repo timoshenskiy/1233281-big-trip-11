@@ -10,6 +10,15 @@ const stopInteractionWithApplication = () => {
   });
 
 };
+const startInteractionWithApplication = () => {
+  document.querySelectorAll(`button`).forEach((it) => {
+    it.disabled = false;
+  });
+  document.querySelectorAll(`input`).forEach((it) => {
+    it.disabled = false;
+  });
+
+};
 
 const getRandomIntegerNumber = (min, max) => {
   return min + Math.floor(Math.random() * (max - min));
@@ -67,4 +76,4 @@ const formatDateForPointList = (date) => {
   return moment(date).format(`MMM DD`);
 
 };
-export {stopInteractionWithApplication, findCorrectPrepostion, getRandomIntegerNumber, makeFirstSymbolUppercase, checkIsFutureDay, checkIsPastDay, formatDate, formatTime, formatDatePeriod, formatDateDifference, formatDateForPointList, formatTimeforInput};
+export {stopInteractionWithApplication, startInteractionWithApplication, findCorrectPrepostion, getRandomIntegerNumber, makeFirstSymbolUppercase, checkIsFutureDay, checkIsPastDay, formatDate, formatTime, formatDatePeriod, formatDateDifference, formatDateForPointList, formatTimeforInput};

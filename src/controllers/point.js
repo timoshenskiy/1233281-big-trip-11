@@ -3,12 +3,15 @@ import EditFormComponent from "../components/edit-form.js";
 import PointModel from "../models/point.js";
 import {render, replace, remove, RenderPosition} from "../utils/render.js";
 import {POINT_TYPES_TRANSFER} from '../const.js';
+import {stopInteractionWithApplication} from '../utils/common.js';
 
 export const Mode = {
   DEFAULT: `default`,
   EDIT: `edit`,
   ADDING: `adding`,
 };
+
+const SHAKE_ANIMATION_TIMEOUT = 600;
 
 const parseFormData = (formData, form, destinations) => {
   const offers = Array.from(form.querySelectorAll(`.event__offer-selector`));
@@ -90,8 +93,19 @@ export default class PointController {
       this._onDataChange(this, travelPoint, newTravelPoint);
     });
 
-    this._editFormComponent.setDeleteButtonClickHandler(() => {
-      this._onDataChange(this, travelPoint, null);
+    this._editFormComponent.setDeleteButtonClickHandler((evt) => {
+      evt.preventDefault();
+      this._editFormComponent.showNotificationAboutDeleting();
+
+      if (this._editFormComponent.checkForErrors()) {
+        this._editFormComponent.removeErrorStyle();
+      }
+
+      const onError = () => {
+        this._editFormComponent.removeNotificationAboutDeleting();
+        this._editFormComponent.addErrorStyle();
+      };
+      this._onDataChange(this, travelPoint, null, onError);
 
       document.removeEventListener(`keydown`, this._onEscKeyDown);
     });
@@ -104,8 +118,16 @@ export default class PointController {
       data.id = receivedData.id;
       data.isFavorite = receivedData.isFavorite;
       this._editFormComponent.showNotificationAboutSaving();
-      this._onDataChange(this, travelPoint, data);
+      stopInteractionWithApplication();
 
+      if (this._editFormComponent.checkForErrors()) {
+        this._editFormComponent.removeErrorStyle();
+      }
+      const onError = () => {
+        this._editFormComponent.removeNotificationAboutSaving();
+        this._editFormComponent.addErrorStyle();
+      };
+      this._onDataChange(this, travelPoint, data, onError);
 
       document.removeEventListener(`keydown`, this._onEscKeyDown);
     });
@@ -163,5 +185,14 @@ export default class PointController {
     remove(this._editFormComponent);
     remove(this._travelPointComponent);
     document.removeEventListener(`keydown`, this._onEscKeyDown);
+  }
+  shake() {
+    this._editFormComponent.getElement().style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
+    this._travelPointComponent.getElement().style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
+
+    setTimeout(() => {
+      this._editFormComponent.getElement().style.animation = ``;
+      this._travelPointComponent.getElement().style.animation = ``;
+    }, SHAKE_ANIMATION_TIMEOUT);
   }
 }

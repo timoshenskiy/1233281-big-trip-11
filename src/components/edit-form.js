@@ -1,5 +1,5 @@
 import {POINT_TYPES_TRANSFER, POINT_TYPES_ACTIVITY} from '../const.js';
-import {makeFirstSymbolUppercase, formatTimeforInput, findCorrectPrepostion, stopInteractionWithApplication} from '../utils/common.js';
+import {makeFirstSymbolUppercase, formatTimeforInput, findCorrectPrepostion} from '../utils/common.js';
 import AbstractSmartComponent from './abstract-smart-component.js';
 import {Mode} from "../controllers/point.js";
 import {encode} from "he";
@@ -7,8 +7,12 @@ import flatpickr from "flatpickr";
 
 import "flatpickr/dist/flatpickr.min.css";
 
-
-const NotificationMessages = {
+const DefaultButtonText = {
+  SAVE: `Save`,
+  DELETE: `Delete`,
+  CANCEL: `Cancel`,
+};
+const NotificationText = {
   SAVING: `Saving...`,
   DELETING: `Deleting...`
 };
@@ -135,8 +139,8 @@ const createEditFormTemplate = (travelPoint, options) => {
                 <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${price}">
               </div>
 
-              <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-              <button class="event__reset-btn" type="reset">${mode === Mode.ADDING ? `Cancel` : `Delete`}</button>
+              <button class="event__save-btn  btn  btn--blue" type="submit">${DefaultButtonText.SAVE}</button>
+              <button class="event__reset-btn" type="reset">${mode === Mode.ADDING ? DefaultButtonText.CANCEL : DefaultButtonText.DELETE}</button>
               ${mode === Mode.ADDING ? `` : ` <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavorite ? `checked` : ``}>
               <label class="event__favorite-btn" for="event-favorite-1">
                 <span class="visually-hidden">Add to favorite</span>
@@ -167,7 +171,7 @@ const createEditFormTemplate = (travelPoint, options) => {
                     ${createPhotoMarkup(photos)}
                   </div>
                 </div>`}
-              </section> 
+              </section>
             </section>
           </form>`
   );
@@ -200,6 +204,8 @@ export default class EditForm extends AbstractSmartComponent {
     this._favoritesHandler = null;
     this._editCloseHandler = null;
     this._deleteHandler = null;
+
+    this._didErrorOccur = false;
 
   }
 
@@ -338,8 +344,30 @@ export default class EditForm extends AbstractSmartComponent {
     };
   }
   showNotificationAboutSaving() {
-    this.getElement().querySelector(`.event__save-btn`).textContent = NotificationMessages.SAVING;
-    stopInteractionWithApplication();
-
+    this.getElement().querySelector(`.event__save-btn`).textContent = NotificationText.SAVING;
+  }
+  removeNotificationAboutSaving() {
+    this.getElement().querySelector(`.event__save-btn`).textContent = DefaultButtonText.SAVE;
+  }
+  showNotificationAboutDeleting() {
+    this.getElement().querySelector(`.event__reset-btn`).textContent = NotificationText.DELETING;
+  }
+  removeNotificationAboutDeleting() {
+    if (this._mode === Mode.ADDING) {
+      this.getElement().querySelector(`.event__reset-btn`).textContent = DefaultButtonText.CANCEL;
+    } else {
+      this.getElement().querySelector(`.event__reset-btn`).textContent = DefaultButtonText.DELETE;
+    }
+  }
+  checkForErrors() {
+    return this._didErrorOccur;
+  }
+  addErrorStyle() {
+    this.getElement().classList.add(`error`);
+    this._didErrorOccur = true;
+  }
+  removeErrorStyle() {
+    this.getElement().classList.remove(`error`);
+    this._didErrorOccur = false;
   }
 }
