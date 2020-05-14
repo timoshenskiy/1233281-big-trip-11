@@ -2,6 +2,13 @@ import Point from "./models/point.js";
 import Offers from "./models/offers.js";
 import Destinations from "./models/destinations.js";
 
+const Method = {
+  GET: `GET`,
+  POST: `POST`,
+  PUT: `PUT`,
+  DELETE: `DELETE`
+};
+
 const checkStatus = (response) => {
   if (response.status >= 200 && response.status < 300) {
     return response;
@@ -11,48 +18,56 @@ const checkStatus = (response) => {
 };
 
 const API = class {
-  constructor(authorization) {
+  constructor(endPoint, authorization) {
+    this._endPoint = endPoint;
     this._authorization = authorization;
   }
   getPoints() {
-    const headers = new Headers();
-    headers.append(`Authorization`, this._authorization);
-
-    return fetch(`https://11.ecmascript.pages.academy/big-trip/points`, {headers})
-        .then(checkStatus)
-        .then((response) => response.json())
-        .then(Point.parsePoints);
+    return this._load({url: `points`})
+      .then((response) => response.json())
+      .then(Point.parsePoints);
   }
   getOffers() {
-    const headers = new Headers();
-    headers.append(`Authorization`, this._authorization);
-
-    return fetch(`https://11.ecmascript.pages.academy/big-trip/offers`, {headers})
-        .then(checkStatus)
-        .then((response) => response.json())
-        .then(Offers.parseOffers);
+    return this._load({url: `offers`})
+      .then((response) => response.json())
+      .then(Offers.parseOffers);
   }
   getDestinations() {
-    const headers = new Headers();
-    headers.append(`Authorization`, this._authorization);
-
-    return fetch(`https://11.ecmascript.pages.academy/big-trip/destinations`, {headers})
-        .then(checkStatus)
-        .then((response) => response.json())
-        .then(Destinations.parseDestinations);
+    return this._load({url: `destinations`})
+      .then((response) => response.json())
+      .then(Destinations.parseDestinations);
   }
-  updatePoint(id, data) {
-    const headers = new Headers();
-    headers.append(`Authorization`, this._authorization);
-    headers.append(`Content-Type`, `application/json`);
-    return fetch(`https://11.ecmascript.pages.academy/big-trip/points/${id}`, {
-      method: `PUT`,
-      headers,
-      body: JSON.stringify(data.toRAW()),
+  createPoint(point) {
+    return this._load({
+      url: `points`,
+      method: Method.POST,
+      body: JSON.stringify(point.toRAW()),
+      headers: new Headers({"Content-Type": `application/json`})
     })
-      .then(checkStatus)
       .then((response) => response.json())
       .then(Point.parsePoint);
+  }
+  deletePoint(id) {
+    return this._load({url: `points/${id}`, method: Method.DELETE});
+  }
+  updatePoint(id, data) {
+    return this._load({
+      url: `points/${id}`,
+      method: Method.PUT,
+      body: JSON.stringify(data.toRAW()),
+      headers: new Headers({"Content-Type": `application/json`}),
+    })
+      .then((response) => response.json())
+      .then(Point.parsePoint);
+  }
+  _load({url, method = Method.GET, body = null, headers = new Headers()}) {
+    headers.append(`Authorization`, this._authorization);
+
+    return fetch(`${this._endPoint}/${url}`, {method, body, headers})
+      .then(checkStatus)
+      .catch((err) => {
+        throw err;
+      });
   }
 };
 

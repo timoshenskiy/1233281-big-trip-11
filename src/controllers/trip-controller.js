@@ -2,9 +2,9 @@ import PointController, {EmptyPoint, Mode as PointControllerMode} from './point.
 import SortingComponent, {SortType} from '../components/sorting.js';
 import NoTravelPointsComponent from '../components/no-travel-points.js';
 import TravelPointListComponent from '../components/travel-point-list.js';
-import {Mode} from './point.js';
 import {render, RenderPosition} from "../utils/render.js";
 import {FilterType} from '../const.js';
+import {startInteractionWithApplication} from '../utils/common.js';
 
 
 export const sortTravelPoints = (sortType, travelPoints) => {
@@ -104,7 +104,7 @@ export default class TripController {
 
       const pointController = new PointController(travelPointList.getPlaceForPoint(), this._onDataChange, this._onViewChange, this._offers, this._destinations);
       pointControllers.push(pointController);
-      pointController.render(travelPoint, Mode.DEFAULT);
+      pointController.render(travelPoint, PointControllerMode.DEFAULT);
     }
     this._pointControllers = pointControllers;
   }
@@ -116,7 +116,7 @@ export default class TripController {
     }
     this._pointControllers.forEach((it) => it.setDefaultView());
   }
-  _onDataChange(pointController, oldData, newData) {
+  _onDataChange(pointController, oldData, newData, onError) {
     // Если старые данные это пустая точка, значит это добавление новой точки
     if (oldData === EmptyPoint) {
       this._newEventComponent.setEnabled();
@@ -126,16 +126,31 @@ export default class TripController {
         pointController.destroy();
         this._newEventComponent.setEnabled();
       } else {
-        this._pointsModel.addPoint(newData);
-        pointController.render(newData, PointControllerMode.DEFAULT);
-        this._pointControllers = [].concat(pointController, this._pointControllers);
-
+        this._api.createPoint(newData)
+          .then((pointModel) => {
+            this._pointsModel.addPoint(pointModel);
+            pointController.render(pointModel, PointControllerMode.DEFAULT);
+            this._pointControllers = [].concat(pointController, this._pointControllers);
+            this._updatePoints();
+          })
+          .catch(() => {
+            pointController.shake();
+            startInteractionWithApplication();
+            onError();
+          });
       }
-      this._updatePoints();
     // Если не поступило новых данных, значит это удаление.
     } else if (newData === null) {
-      this._pointsModel.removePoint(oldData.id);
-      this._updatePoints();
+      this._api.deletePoint(oldData.id)
+        .then(() => {
+          this._pointsModel.removePoint(oldData.id);
+          this._updatePoints(this._showingPointsCount);
+        })
+        .catch(() => {
+          pointController.shake();
+          startInteractionWithApplication();
+          onError();
+        });
     // Редактирование
     } else {
       this._api.updatePoint(oldData.id, newData)
@@ -143,10 +158,15 @@ export default class TripController {
         const isSuccess = this._pointsModel.updatePoint(oldData.id, pointModel);
 
         if (isSuccess) {
-          pointController.render(pointModel, Mode.DEFAULT);
+          pointController.render(pointModel, PointControllerMode.DEFAULT);
           this._updatePoints();
           this._newEventComponent.setEnabled();
         }
+      })
+      .catch(() => {
+        pointController.shake();
+        startInteractionWithApplication();
+        onError();
       });
     }
   }
@@ -207,7 +227,7 @@ export default class TripController {
     render(this._container, sortedTravelPointList.getElement(), RenderPosition.BEFOREEND);
     for (const travelPoint of sortedTravelPoints) {
       const pointController = new PointController(sortedTravelPointList.getPlaceForPoint(), this._onDataChange, this._onViewChange, this._offers, this._destinations);
-      pointController.render(travelPoint, Mode.DEFAULT);
+      pointController.render(travelPoint, PointControllerMode.DEFAULT);
       this._pointControllers.push(pointController);
     }
   }
