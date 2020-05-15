@@ -41,7 +41,7 @@ export default class Sorting extends AbstractComponent {
     super();
 
     this._currentSortType = sortType;
-    this._handler = null;
+    this._sortTypeChangeHandler = null;
   }
   getTemplate() {
     return createSortTemplate(this._currentSortType);
@@ -65,7 +65,7 @@ export default class Sorting extends AbstractComponent {
 
       this._currentSortType = sortType;
       this.refreshElement();
-      this._handler = handler;
+      this._sortTypeChangeHandler = handler;
       handler(this._currentSortType);
     });
   }
