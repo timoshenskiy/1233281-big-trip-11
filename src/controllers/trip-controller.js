@@ -1,6 +1,6 @@
 import PointController, {EmptyPoint, Mode as PointControllerMode} from "./point-controller.js";
 import SortingComponent, {SortType} from "../components/sorting.js";
-import NoTravelPointsComponent from "../components/no-travel-points.js";
+import NoTravelPointsComponent from "../components/no-points.js";
 import TravelPointListComponent from "../components/travel-point-list.js";
 import {render, RenderPosition} from "../utils/render.js";
 import {FilterType} from "../const.js";
