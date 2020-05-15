@@ -2,8 +2,8 @@ import TravelPointComponent from "../components/travel-point.js";
 import EditFormComponent from "../components/edit-form.js";
 import PointModel from "../models/point.js";
 import {render, replace, remove, RenderPosition} from "../utils/render.js";
-import {POINT_TYPES_TRANSFER} from '../const.js';
-import {stopInteractionWithApplication} from '../utils/common.js';
+import {POINT_TYPES_TRANSFER} from "../const.js";
+import {stopInteractionWithApplication} from "../utils/common.js";
 
 export const Mode = {
   DEFAULT: `default`,

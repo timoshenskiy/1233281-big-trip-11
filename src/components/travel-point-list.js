@@ -1,5 +1,5 @@
-import {formatDate, formatDateForPointList} from '../utils/common.js';
-import AbstractComponent from './abstract-component.js';
+import {formatDate, formatDateForPointList} from "../utils/common.js";
+import AbstractComponent from "./abstract-component.js";
 
 const createTravelPointListTemplate = (number, date) => {
   return (

@@ -1,4 +1,3 @@
-
 export default class Destinations {
   constructor(data) {
     this._destinations = data;

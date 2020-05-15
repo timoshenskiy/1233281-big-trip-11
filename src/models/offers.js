@@ -1,4 +1,3 @@
-
 export default class Offers {
   constructor(data) {
     this._offers = data;

@@ -1,4 +1,3 @@
-
 export default class Point {
   constructor(data) {
     this.id = data[`id`];
