@@ -1,7 +1,7 @@
 import {POINT_TYPES_TRANSFER, POINT_TYPES_ACTIVITY} from '../const.js';
 import {makeFirstSymbolUppercase, formatTimeforInput, findCorrectPrepostion} from '../utils/common.js';
 import AbstractSmartComponent from './abstract-smart-component.js';
-import {Mode} from "../controllers/point.js";
+import {Mode} from "../controllers/point-controller.js";
 import {encode} from "he";
 import flatpickr from "flatpickr";
 
