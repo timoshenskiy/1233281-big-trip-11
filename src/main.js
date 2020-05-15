@@ -1,16 +1,16 @@
 import API from "./api.js";
-import TravelInfoComponent from './components/travel-info.js';
-import TravelCostComponent from './components/travel-cost.js';
-import SiteMenuComponent from './components/site-menu.js';
-import NewEventComponent from './components/new-event.js';
+import TravelInfoComponent from "./components/travel-info.js";
+import TravelCostComponent from "./components/travel-cost.js";
+import SiteMenuComponent from "./components/site-menu.js";
+import NewEventComponent from "./components/new-event.js";
 import StatisticsComponent from "./components/statistics.js";
 import FiltersController from "./controllers/filters.js";
 import PointsModel from "./models/points.js";
-import TripController from './controllers/trip-controller.js';
-import LoadingListComponent from './components/loading-list.js';
+import TripController from "./controllers/trip-controller.js";
+import LoadingListComponent from "./components/loading-list.js";
 import {render, RenderPosition} from "./utils/render.js";
 
-import {SiteTabs} from './components/site-menu.js';
+import {SiteTabs} from "./components/site-menu.js";
 
 const AUTHORIZATION = `Basic FKGNDFkfjghdl`;
 const END_POINT = `https://11.ecmascript.pages.academy/big-trip`;

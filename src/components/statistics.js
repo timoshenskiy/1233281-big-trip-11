@@ -1,8 +1,8 @@
 import AbstractSmartComponent from "./abstract-smart-component.js";
 import Chart from "chart.js";
-import ChartDataLabels from 'chartjs-plugin-datalabels';
-import {calculateTotalCost} from './travel-cost.js';
-import {findCorrectPrepostion} from '../utils/common.js';
+import ChartDataLabels from "chartjs-plugin-datalabels";
+import {calculateTotalCost} from "./travel-cost.js";
+import {findCorrectPrepostion} from "../utils/common.js";
 
 const emojiMap = {
   taxi: `🚕`,

@@ -1,10 +1,10 @@
-import PointController, {EmptyPoint, Mode as PointControllerMode} from './point.js';
-import SortingComponent, {SortType} from '../components/sorting.js';
-import NoTravelPointsComponent from '../components/no-travel-points.js';
-import TravelPointListComponent from '../components/travel-point-list.js';
+import PointController, {EmptyPoint, Mode as PointControllerMode} from "./point.js";
+import SortingComponent, {SortType} from "../components/sorting.js";
+import NoTravelPointsComponent from "../components/no-travel-points.js";
+import TravelPointListComponent from "../components/travel-point-list.js";
 import {render, RenderPosition} from "../utils/render.js";
-import {FilterType} from '../const.js';
-import {startInteractionWithApplication} from '../utils/common.js';
+import {FilterType} from "../const.js";
+import {startInteractionWithApplication} from "../utils/common.js";
 
 
 export const sortTravelPoints = (sortType, travelPoints) => {

@@ -1,7 +1,7 @@
-import {formatDatePeriod} from '../utils/common.js';
-import AbstractComponent from './abstract-component.js';
-import {sortTravelPoints} from '../controllers/trip-controller.js';
-import {SortType} from '../components/sorting.js';
+import {formatDatePeriod} from "../utils/common.js";
+import AbstractComponent from "./abstract-component.js";
+import {sortTravelPoints} from "../controllers/trip-controller.js";
+import {SortType} from "../components/sorting.js";
 
 const createTravelPointsInfo = (points) => {
   let uniquePoints = [points[0].destination];

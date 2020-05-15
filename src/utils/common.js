@@ -1,5 +1,5 @@
 import moment from "moment";
-import {MONTH_NAMES, POINT_TYPES_TRANSFER} from '../const.js';
+import {MONTH_NAMES, POINT_TYPES_TRANSFER} from "../const.js";
 
 const stopInteractionWithApplication = () => {
   document.querySelectorAll(`button`).forEach((it) => {
