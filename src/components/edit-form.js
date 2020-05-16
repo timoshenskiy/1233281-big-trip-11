@@ -370,4 +370,8 @@ export default class EditForm extends AbstractSmartComponent {
     this.getElement().classList.remove(`error`);
     this._didErrorOccur = false;
   }
+  toggleFavoriteState() {
+    const favoriteButton = this.getElement().querySelector(`.event__favorite-checkbox`);
+    favoriteButton.checked = !favoriteButton.checked;
+  }
 }

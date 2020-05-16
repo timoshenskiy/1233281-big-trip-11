@@ -116,7 +116,7 @@ export default class TripController {
     }
     this._pointControllers.forEach((it) => it.setDefaultView());
   }
-  _onDataChange(pointController, oldData, newData, onError) {
+  _onDataChange(pointController, oldData, newData, onError, Mode) {
     // Если старые данные это пустая точка, значит это добавление новой точки
     if (oldData === EmptyPoint) {
       this._newEventComponent.setEnabled();
@@ -158,8 +158,10 @@ export default class TripController {
         const isSuccess = this._pointsModel.updatePoint(oldData.id, pointModel);
 
         if (isSuccess) {
-          pointController.render(pointModel, PointControllerMode.DEFAULT);
-          this._updatePoints();
+          pointController.render(pointModel, Mode);
+          if (Mode === PointControllerMode.DEFAULT) {
+            this._updatePoints();
+          }
           this._newEventComponent.setEnabled();
         }
       })
@@ -173,6 +175,9 @@ export default class TripController {
   _onFilterChange() {
     this._updatePoints();
     this._newEventComponent.setEnabled();
+    if (this._travelPoints.length > 0) {
+      this._sortingComponent.setDefault();
+    }
   }
   _removePoints() {
     this._pointControllers.forEach((pointController) => pointController.destroy());

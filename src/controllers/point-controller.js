@@ -90,7 +90,10 @@ export default class PointController {
     this._editFormComponent.setFavoritesButtonClickHandler(() => {
       const newTravelPoint = PointModel.clone(travelPoint);
       newTravelPoint.isFavorite = !newTravelPoint.isFavorite;
-      this._onDataChange(this, travelPoint, newTravelPoint);
+      const onError = () => {
+        this._editFormComponent.toggleFavoriteState();
+      };
+      this._onDataChange(this, travelPoint, newTravelPoint, onError, Mode.EDIT);
     });
 
     this._editFormComponent.setDeleteButtonClickHandler((evt) => {
@@ -127,7 +130,7 @@ export default class PointController {
         this._editFormComponent.removeNotificationAboutSaving();
         this._editFormComponent.addErrorStyle();
       };
-      this._onDataChange(this, travelPoint, data, onError);
+      this._onDataChange(this, travelPoint, data, onError, Mode.DEFAULT);
 
       document.removeEventListener(`keydown`, this._onEscKeyDown);
     });

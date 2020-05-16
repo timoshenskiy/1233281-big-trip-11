@@ -36,7 +36,7 @@ const makeFirstSymbolUppercase = (string) => {
 };
 
 const formatTime = (date) => {
-  return moment(date).format(`hh:mm`);
+  return moment(date).format(`HH:mm`);
 };
 const checkIsPastDay = (date, currentDate) => {
   return date < currentDate;
