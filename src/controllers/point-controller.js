@@ -3,7 +3,6 @@ import EditFormComponent from "../components/edit-form.js";
 import PointModel from "../models/point.js";
 import {render, replace, remove, RenderPosition} from "../utils/render.js";
 import {POINT_TYPES_TRANSFER} from "../const.js";
-import {stopInteractionWithApplication} from "../utils/common.js";
 
 export const Mode = {
   DEFAULT: `default`,
@@ -88,10 +87,14 @@ export default class PointController {
     });
 
     this._editFormComponent.setFavoritesButtonClickHandler(() => {
+      if (this._editFormComponent.checkForErrors()) {
+        this._editFormComponent.removeErrorStyle();
+      }
       const newTravelPoint = PointModel.clone(travelPoint);
       newTravelPoint.isFavorite = !newTravelPoint.isFavorite;
       const onError = () => {
         this._editFormComponent.toggleFavoriteState();
+        this._editFormComponent.addErrorStyle();
       };
       this._onDataChange(this, travelPoint, newTravelPoint, onError, Mode.EDIT);
     });
@@ -121,7 +124,6 @@ export default class PointController {
       data.id = receivedData.id;
       data.isFavorite = receivedData.isFavorite;
       this._editFormComponent.showNotificationAboutSaving();
-      stopInteractionWithApplication();
 
       if (this._editFormComponent.checkForErrors()) {
         this._editFormComponent.removeErrorStyle();
@@ -197,5 +199,13 @@ export default class PointController {
       this._editFormComponent.getElement().style.animation = ``;
       this._travelPointComponent.getElement().style.animation = ``;
     }, SHAKE_ANIMATION_TIMEOUT);
+  }
+  blockInterface() {
+    this._travelPointComponent.disableEditButton();
+    this._editFormComponent.blockForm();
+  }
+  unblockInterface() {
+    this._travelPointComponent.enableEditButton();
+    this._editFormComponent.unblockForm();
   }
 }

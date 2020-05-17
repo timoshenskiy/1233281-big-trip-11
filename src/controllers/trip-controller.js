@@ -4,7 +4,6 @@ import NoTravelPointsComponent from "../components/no-points.js";
 import TravelPointListComponent from "../components/travel-point-list.js";
 import {render, RenderPosition} from "../utils/render.js";
 import {FilterType} from "../const.js";
-import {startInteractionWithApplication} from "../utils/common.js";
 
 
 export const sortTravelPoints = (sortType, travelPoints) => {
@@ -116,6 +115,14 @@ export default class TripController {
     }
     this._pointControllers.forEach((it) => it.setDefaultView());
   }
+  _startInteractionWithApplication() {
+    this._pointControllers.forEach((it) => it.unblockInterface());
+    this._newEventComponent.setEnabled();
+  }
+  _stopInteractionWithApplication() {
+    this._pointControllers.forEach((it) => it.blockInterface());
+    this._newEventComponent.setDisabled();
+  }
   _onDataChange(pointController, oldData, newData, onError, Mode) {
     // Если старые данные это пустая точка, значит это добавление новой точки
     if (oldData === EmptyPoint) {
@@ -126,49 +133,56 @@ export default class TripController {
         pointController.destroy();
         this._newEventComponent.setEnabled();
       } else {
+        this._stopInteractionWithApplication();
         this._api.createPoint(newData)
           .then((pointModel) => {
             this._pointsModel.addPoint(pointModel);
             pointController.render(pointModel, PointControllerMode.DEFAULT);
             this._pointControllers = [].concat(pointController, this._pointControllers);
             this._updatePoints();
+            this._startInteractionWithApplication();
           })
           .catch(() => {
             pointController.shake();
-            startInteractionWithApplication();
             onError();
+            this._startInteractionWithApplication();
           });
       }
     // Если не поступило новых данных, значит это удаление.
     } else if (newData === null) {
+      this._stopInteractionWithApplication();
       this._api.deletePoint(oldData.id)
         .then(() => {
           this._pointsModel.removePoint(oldData.id);
           this._updatePoints(this._showingPointsCount);
+          this._startInteractionWithApplication();
         })
         .catch(() => {
           pointController.shake();
-          startInteractionWithApplication();
           onError();
+          this._startInteractionWithApplication();
         });
     // Редактирование
     } else {
+      this._stopInteractionWithApplication();
       this._api.updatePoint(oldData.id, newData)
       .then((pointModel) => {
         const isSuccess = this._pointsModel.updatePoint(oldData.id, pointModel);
 
         if (isSuccess) {
-          pointController.render(pointModel, Mode);
           if (Mode === PointControllerMode.DEFAULT) {
             this._updatePoints();
+          } else {
+            pointController.render(pointModel, Mode);
           }
           this._newEventComponent.setEnabled();
         }
+        this._startInteractionWithApplication();
       })
       .catch(() => {
         pointController.shake();
-        startInteractionWithApplication();
         onError();
+        this._startInteractionWithApplication();
       });
     }
   }

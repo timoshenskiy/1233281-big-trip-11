@@ -1,25 +1,6 @@
 import moment from "moment";
 import {MONTH_NAMES, POINT_TYPES_TRANSFER} from "../const.js";
 
-const stopInteractionWithApplication = () => {
-  document.querySelectorAll(`button`).forEach((it) => {
-    it.disabled = true;
-  });
-  document.querySelectorAll(`input`).forEach((it) => {
-    it.disabled = true;
-  });
-
-};
-const startInteractionWithApplication = () => {
-  document.querySelectorAll(`button`).forEach((it) => {
-    it.disabled = false;
-  });
-  document.querySelectorAll(`input`).forEach((it) => {
-    it.disabled = false;
-  });
-
-};
-
 const getRandomIntegerNumber = (min, max) => {
   return min + Math.floor(Math.random() * (max - min));
 };
@@ -76,4 +57,4 @@ const formatDateForPointList = (date) => {
   return moment(date).format(`MMM DD`);
 
 };
-export {stopInteractionWithApplication, startInteractionWithApplication, findCorrectPrepostion, getRandomIntegerNumber, makeFirstSymbolUppercase, checkIsFutureDay, checkIsPastDay, formatDate, formatTime, formatDatePeriod, formatDateDifference, formatDateForPointList, formatTimeforInput};
+export {findCorrectPrepostion, getRandomIntegerNumber, makeFirstSymbolUppercase, checkIsFutureDay, checkIsPastDay, formatDate, formatTime, formatDatePeriod, formatDateDifference, formatDateForPointList, formatTimeforInput};
