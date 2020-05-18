@@ -195,11 +195,14 @@ export default class EditForm extends AbstractSmartComponent {
     this._offers = offers;
     this._destinations = destinations;
 
-    this._subscribeOnEvents();
-    this._applyFlatpickr();
-
     this._flatpickrDeparture = null;
     this._flatpickrArrival = null;
+
+    this._subscribeOnEvents();
+
+
+    this._applyFlatpickr();
+
     this._submitHandler = null;
     this._favoritesHandler = null;
     this._editCloseHandler = null;
@@ -247,7 +250,6 @@ export default class EditForm extends AbstractSmartComponent {
       this._flatpickrArrival.destroy();
       this._flatpickrArrival = null;
     }
-
 
     const dateElements = this.getElement().querySelectorAll(`.event__input--time`);
 
@@ -389,5 +391,13 @@ export default class EditForm extends AbstractSmartComponent {
     this.getElement().querySelectorAll(`input`).forEach((it) => {
       it.disabled = false;
     });
+  }
+  removeFlatpickr() {
+    this._flatpickrDeparture.destroy();
+    this._flatpickrDeparture = null;
+
+    this._flatpickrArrival.destroy();
+    this._flatpickrArrival = null;
+
   }
 }

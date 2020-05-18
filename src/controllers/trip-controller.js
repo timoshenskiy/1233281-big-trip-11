@@ -228,6 +228,7 @@ export default class TripController {
     render(this._container, this._sortingComponent.getElement(), RenderPosition.BEFOREEND);
     this._sortingComponent.setSortTypeChangeHandler((sortType)=>{
       this._container.innerHTML = ``;
+      this._removePoints();
       if (sortType === SortType.EVENT) {
         render(this._container, this._sortingComponent.getElement(), RenderPosition.BEFOREEND);
         this.renderPoints(this._container, this._pointsModel.getPoints(), this._onDataChange);
@@ -241,7 +242,6 @@ export default class TripController {
     });
   }
   _renderSortedTravelPoints(sortedTravelPoints) {
-    this._removePoints();
     const sortedTravelPointList = new TravelPointListComponent();
     render(this._container, sortedTravelPointList.getElement(), RenderPosition.BEFOREEND);
     for (const travelPoint of sortedTravelPoints) {

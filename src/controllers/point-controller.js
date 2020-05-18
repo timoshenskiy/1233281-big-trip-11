@@ -187,6 +187,7 @@ export default class PointController {
     }
   }
   destroy() {
+    this._editFormComponent.removeFlatpickr();
     remove(this._editFormComponent);
     remove(this._travelPointComponent);
     document.removeEventListener(`keydown`, this._onEscKeyDown);
