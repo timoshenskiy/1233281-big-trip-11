@@ -51,6 +51,7 @@ export default class TripController {
     this._pointsModel.setDataChangeHandler(this._onTravelInfoChange);
     this._pointsModel.setDataChangeHandler(this._onTravelCostChange);
 
+    this._sortType = SortType.EVENT;
     this._offers = null;
     this._destinations = null;
   }
@@ -71,6 +72,7 @@ export default class TripController {
     this._newEventComponent.setNewEventButtonClickHandler(()=>{
       if (this._travelPoints.length > 0) {
         this._sortingComponent.setDefault();
+        this._sortType = SortType.EVENT;
       }
       this._filtersController.render();
       this._pointsModel.setFilter(FilterType.EVERYTHING);
@@ -88,7 +90,7 @@ export default class TripController {
   }
   renderPoints() {
     const pointControllers = [];
-    sortTravelPoints(SortType.EVENT, this._pointsModel.getPoints());
+    sortTravelPoints(this._sortType, this._pointsModel.getPoints());
     let currentDate = this._pointsModel.getPoints()[0].departureDate;
     let dayNumber = 1;
     let travelPointList = new TravelPointListComponent(dayNumber, this._pointsModel.getPoints()[0].departureDate);
@@ -191,6 +193,7 @@ export default class TripController {
     this._newEventComponent.setEnabled();
     if (this._travelPoints.length > 0) {
       this._sortingComponent.setDefault();
+      this._sortType = SortType.EVENT;
     }
   }
   _removePoints() {
@@ -227,6 +230,7 @@ export default class TripController {
   _renderSorting() {
     render(this._container, this._sortingComponent.getElement(), RenderPosition.BEFOREEND);
     this._sortingComponent.setSortTypeChangeHandler((sortType)=>{
+      this._sortType = sortType;
       this._container.innerHTML = ``;
       this._removePoints();
       if (sortType === SortType.EVENT) {

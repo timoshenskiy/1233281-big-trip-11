@@ -36,7 +36,6 @@ export default class TravelCost extends AbstractComponent {
   }
   updatePoints(travelPoints) {
     this._travelPoints = travelPoints;
-    this._element.innerHTML = ``;
-    this._element.innerHTML = this.getTemplate();
+    this.getElement().querySelector(`.trip-info__cost-value`).textContent = calculateTotalCost(this._travelPoints);
   }
 }

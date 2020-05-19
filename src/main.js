@@ -12,19 +12,19 @@ import {render, RenderPosition} from "./utils/render.js";
 
 import {SiteTabs} from "./components/site-menu.js";
 
-const AUTHORIZATION = `Basic FKGNDFkjhdl`;
+const AUTHORIZATION = `Basic FKGkjkhhgghghghNjhdl`;
 const END_POINT = `https://11.ecmascript.pages.academy/big-trip`;
 
 const api = new API(END_POINT, AUTHORIZATION);
 const pointsModel = new PointsModel();
 
 const siteHeaderElement = document.querySelector(`.trip-main`);
+const siteHeaderInfoElement = siteHeaderElement.querySelector(`.trip-main__trip-info`);
 const travelInfoComponent = new TravelInfoComponent(pointsModel);
-render(siteHeaderElement, travelInfoComponent.getElement(), RenderPosition.AFTERBEGIN);
+render(siteHeaderInfoElement, travelInfoComponent.getElement(), RenderPosition.AFTERBEGIN);
 
 const travelCostComponent = new TravelCostComponent(pointsModel);
-const tripCostElement = siteHeaderElement.querySelector(`.trip-info`);
-render(tripCostElement, travelCostComponent.getElement(), RenderPosition.BEFOREEND);
+render(siteHeaderInfoElement, travelCostComponent.getElement(), RenderPosition.BEFOREEND);
 
 const menuElement = siteHeaderElement.querySelector(`.trip-controls h2`);
 const siteMenuComponent = new SiteMenuComponent();
