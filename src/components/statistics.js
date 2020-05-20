@@ -387,6 +387,14 @@ export default class Statistics extends AbstractSmartComponent {
   getTemplate() {
     return createStatisticsTemplate();
   }
+
+  rerender() {
+    super.rerender();
+    this._renderCharts();
+
+  }
+  recoveryListeners() {}
+
   _renderCharts() {
     const element = this.getElement();
 
@@ -412,11 +420,5 @@ export default class Statistics extends AbstractSmartComponent {
     this.rerender();
     this.hide();
   }
-  rerender() {
-    super.rerender();
-    this._renderCharts();
-
-  }
-  recoveryListeners() {}
 
 }
