@@ -12,7 +12,7 @@ import {render, RenderPosition} from "./utils/render.js";
 
 import {SiteTabs} from "./components/site-menu.js";
 
-const AUTHORIZATION = `Basic FKGkjkhhgghghghNjhdl`;
+const AUTHORIZATION = `Basic FKGkjkhlafrkghNjhdl`;
 const END_POINT = `https://11.ecmascript.pages.academy/big-trip`;
 
 const api = new API(END_POINT, AUTHORIZATION);
