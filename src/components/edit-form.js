@@ -30,13 +30,7 @@ const createEventTypeItems = (eventTypes, checkedType) => {
   })
   .join(`\n`);
 };
-const createEventOfferItems = (type, checkedOffers, allOffers) => {
-  let offersOfCurrentType = [];
-  for (const offersOfOneType of allOffers) {
-    if (offersOfOneType.type === type) {
-      offersOfCurrentType = offersOfOneType.offers;
-    }
-  }
+const createEventOfferItems = (type, checkedOffers, offersOfCurrentType) => {
   return offersOfCurrentType.map((offer, index) => {
     const {title, price} = offer;
     const isChecked = checkedOffers.some((it) => {
@@ -85,6 +79,13 @@ const createEditFormTemplate = (travelPoint, options) => {
   const preposition = findCorrectPrepostion(type);
   const startTime = formatTimeforInput(departureDate);
   const endTime = formatTimeforInput(arrivalDate);
+
+  let offersOfCurrentType = [];
+  for (const offersOfOneType of allOffers) {
+    if (offersOfOneType.type === type) {
+      offersOfCurrentType = offersOfOneType.offers;
+    }
+  }
 
   return (
     `<form class="trip-events__item  event  event--edit" action="#" method="post">
@@ -153,12 +154,12 @@ const createEditFormTemplate = (travelPoint, options) => {
               </button>`}
             </header>
             <section class="event__details">
-            ${allOffers.length > 0 ? `
+            ${offersOfCurrentType.length > 0 ? `
               <section class="event__section  event__section--offers">
                 <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
                 <div class="event__available-offers">
-                  ${createEventOfferItems(type, checkedOffers, allOffers)}
+                  ${createEventOfferItems(type, checkedOffers, offersOfCurrentType)}
                 </div>
               </section>` : ``}
               ${mode === Mode.ADDING ? `` : `
@@ -253,6 +254,9 @@ export default class EditForm extends AbstractSmartComponent {
 
     const dateElements = this.getElement().querySelectorAll(`.event__input--time`);
 
+    const startTimeInputElement = dateElements[0];
+    const endTimeInputElement = dateElements[1];
+
     const flatpickrDepartureOptions = {
       altInput: true,
       allowInput: true,
@@ -265,8 +269,28 @@ export default class EditForm extends AbstractSmartComponent {
       defaultDate: this._arrivalDate,
     });
 
-    this._flatpickrDeparture = flatpickr(dateElements[0], flatpickrDepartureOptions);
-    this._flatpickrArrival = flatpickr(dateElements[1], flatpickrArrivalOptions);
+    this._flatpickrDeparture = flatpickr(startTimeInputElement, flatpickrDepartureOptions);
+    this._flatpickrArrival = flatpickr(endTimeInputElement, flatpickrArrivalOptions);
+
+    startTimeInputElement.addEventListener(`change`, (evt)=>{
+      const endTime = new Date(endTimeInputElement.value);
+      const startTime = new Date(evt.target.value);
+      if ((startTime - endTime) > 0) {
+        this.getElement().querySelector(`.event__save-btn`).disabled = true;
+      } else {
+        this.getElement().querySelector(`.event__save-btn`).disabled = false;
+      }
+    });
+    endTimeInputElement.addEventListener(`change`, (evt)=>{
+      const startTime = new Date(startTimeInputElement.value);
+      const endTime = new Date(evt.target.value);
+      if ((startTime - endTime) > 0) {
+        this.getElement().querySelector(`.event__save-btn`).disabled = true;
+      } else {
+        this.getElement().querySelector(`.event__save-btn`).disabled = false;
+      }
+    });
+
   }
   recoveryListeners() {
     this.setEditCloseButtonClickHandler(this._editCloseHandler);
