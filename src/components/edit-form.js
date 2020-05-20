@@ -1,7 +1,7 @@
 import {POINT_TYPES_TRANSFER, POINT_TYPES_ACTIVITY} from '../const.js';
 import {makeFirstSymbolUppercase, formatTimeforInput, findCorrectPrepostion} from '../utils/common.js';
 import AbstractSmartComponent from './abstract-smart-component.js';
-import {Mode} from "../controllers/point.js";
+import {Mode} from "../controllers/point-controller.js";
 import {encode} from "he";
 import flatpickr from "flatpickr";
 
@@ -30,13 +30,7 @@ const createEventTypeItems = (eventTypes, checkedType) => {
   })
   .join(`\n`);
 };
-const createEventOfferItems = (type, checkedOffers, allOffers) => {
-  let offersOfCurrentType = [];
-  for (const offersOfOneType of allOffers) {
-    if (offersOfOneType.type === type) {
-      offersOfCurrentType = offersOfOneType.offers;
-    }
-  }
+const createEventOfferItems = (type, checkedOffers, offersOfCurrentType) => {
   return offersOfCurrentType.map((offer, index) => {
     const {title, price} = offer;
     const isChecked = checkedOffers.some((it) => {
@@ -85,6 +79,13 @@ const createEditFormTemplate = (travelPoint, options) => {
   const preposition = findCorrectPrepostion(type);
   const startTime = formatTimeforInput(departureDate);
   const endTime = formatTimeforInput(arrivalDate);
+
+  let offersOfCurrentType = [];
+  for (const offersOfOneType of allOffers) {
+    if (offersOfOneType.type === type) {
+      offersOfCurrentType = offersOfOneType.offers;
+    }
+  }
 
   return (
     `<form class="trip-events__item  event  event--edit" action="#" method="post">
@@ -153,12 +154,12 @@ const createEditFormTemplate = (travelPoint, options) => {
               </button>`}
             </header>
             <section class="event__details">
-            ${allOffers.length > 0 ? `
+            ${offersOfCurrentType.length > 0 ? `
               <section class="event__section  event__section--offers">
                 <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
                 <div class="event__available-offers">
-                  ${createEventOfferItems(type, checkedOffers, allOffers)}
+                  ${createEventOfferItems(type, checkedOffers, offersOfCurrentType)}
                 </div>
               </section>` : ``}
               ${mode === Mode.ADDING ? `` : `
@@ -195,11 +196,14 @@ export default class EditForm extends AbstractSmartComponent {
     this._offers = offers;
     this._destinations = destinations;
 
-    this._subscribeOnEvents();
-    this._applyFlatpickr();
-
     this._flatpickrDeparture = null;
     this._flatpickrArrival = null;
+
+    this._subscribeOnEvents();
+
+
+    this._applyFlatpickr();
+
     this._submitHandler = null;
     this._favoritesHandler = null;
     this._editCloseHandler = null;
@@ -238,6 +242,77 @@ export default class EditForm extends AbstractSmartComponent {
 
     this.rerender();
   }
+  getData() {
+    const form = this.getElement();
+    return {
+      id: this._travelPoint.id,
+      isFavorite: this._travelPoint.isFavorite,
+      formData: new FormData(form),
+    };
+  }
+  showNotificationAboutSaving() {
+    this.getElement().querySelector(`.event__save-btn`).textContent = NotificationText.SAVING;
+  }
+  removeNotificationAboutSaving() {
+    this.getElement().querySelector(`.event__save-btn`).textContent = DefaultButtonText.SAVE;
+  }
+  showNotificationAboutDeleting() {
+    this.getElement().querySelector(`.event__reset-btn`).textContent = NotificationText.DELETING;
+  }
+  removeNotificationAboutDeleting() {
+    if (this._mode === Mode.ADDING) {
+      this.getElement().querySelector(`.event__reset-btn`).textContent = DefaultButtonText.CANCEL;
+    } else {
+      this.getElement().querySelector(`.event__reset-btn`).textContent = DefaultButtonText.DELETE;
+    }
+  }
+  checkForErrors() {
+    return this._didErrorOccur;
+  }
+  addErrorStyle() {
+    this.getElement().classList.add(`error`);
+    this._didErrorOccur = true;
+  }
+  removeErrorStyle() {
+    this.getElement().classList.remove(`error`);
+    this._didErrorOccur = false;
+  }
+  toggleFavoriteState() {
+    const favoriteButton = this.getElement().querySelector(`.event__favorite-checkbox`);
+    favoriteButton.checked = !favoriteButton.checked;
+  }
+  blockForm() {
+    this.getElement().querySelectorAll(`button`).forEach((it) => {
+      it.disabled = true;
+    });
+    this.getElement().querySelectorAll(`input`).forEach((it) => {
+      it.disabled = true;
+    });
+  }
+  unblockForm() {
+    this.getElement().querySelectorAll(`button`).forEach((it) => {
+      it.disabled = false;
+    });
+    this.getElement().querySelectorAll(`input`).forEach((it) => {
+      it.disabled = false;
+    });
+  }
+  recoveryListeners() {
+    this.setEditCloseButtonClickHandler(this._editCloseHandler);
+    this.setSubmitHandler(this._submitHandler);
+    this.setDeleteButtonClickHandler(this._deleteHandler);
+    this.setFavoritesButtonClickHandler(this._favoritesHandler);
+    this._subscribeOnEvents();
+
+  }
+  removeFlatpickr() {
+    this._flatpickrDeparture.destroy();
+    this._flatpickrDeparture = null;
+
+    this._flatpickrArrival.destroy();
+    this._flatpickrArrival = null;
+
+  }
   _applyFlatpickr() {
     if (this._flatpickrDeparture) {
       this._flatpickrDeparture.destroy();
@@ -248,8 +323,10 @@ export default class EditForm extends AbstractSmartComponent {
       this._flatpickrArrival = null;
     }
 
-
     const dateElements = this.getElement().querySelectorAll(`.event__input--time`);
+
+    const startTimeInputElement = dateElements[0];
+    const endTimeInputElement = dateElements[1];
 
     const flatpickrDepartureOptions = {
       altInput: true,
@@ -263,17 +340,30 @@ export default class EditForm extends AbstractSmartComponent {
       defaultDate: this._arrivalDate,
     });
 
-    this._flatpickrDeparture = flatpickr(dateElements[0], flatpickrDepartureOptions);
-    this._flatpickrArrival = flatpickr(dateElements[1], flatpickrArrivalOptions);
-  }
-  recoveryListeners() {
-    this.setEditCloseButtonClickHandler(this._editCloseHandler);
-    this.setSubmitHandler(this._submitHandler);
-    this.setDeleteButtonClickHandler(this._deleteHandler);
-    this.setFavoritesButtonClickHandler(this._favoritesHandler);
-    this._subscribeOnEvents();
+    this._flatpickrDeparture = flatpickr(startTimeInputElement, flatpickrDepartureOptions);
+    this._flatpickrArrival = flatpickr(endTimeInputElement, flatpickrArrivalOptions);
+
+    startTimeInputElement.addEventListener(`change`, (evt)=>{
+      const endTime = new Date(endTimeInputElement.value);
+      const startTime = new Date(evt.target.value);
+      if ((startTime - endTime) > 0) {
+        this.getElement().querySelector(`.event__save-btn`).disabled = true;
+      } else {
+        this.getElement().querySelector(`.event__save-btn`).disabled = false;
+      }
+    });
+    endTimeInputElement.addEventListener(`change`, (evt)=>{
+      const startTime = new Date(startTimeInputElement.value);
+      const endTime = new Date(evt.target.value);
+      if ((startTime - endTime) > 0) {
+        this.getElement().querySelector(`.event__save-btn`).disabled = true;
+      } else {
+        this.getElement().querySelector(`.event__save-btn`).disabled = false;
+      }
+    });
 
   }
+
   _subscribeOnEvents() {
     const element = this.getElement();
     const labels = element.querySelectorAll(`.event__type-label`);
@@ -335,39 +425,5 @@ export default class EditForm extends AbstractSmartComponent {
 
     this._deleteHandler = handler;
   }
-  getData() {
-    const form = this.getElement();
-    return {
-      id: this._travelPoint.id,
-      isFavorite: this._travelPoint.isFavorite,
-      formData: new FormData(form),
-    };
-  }
-  showNotificationAboutSaving() {
-    this.getElement().querySelector(`.event__save-btn`).textContent = NotificationText.SAVING;
-  }
-  removeNotificationAboutSaving() {
-    this.getElement().querySelector(`.event__save-btn`).textContent = DefaultButtonText.SAVE;
-  }
-  showNotificationAboutDeleting() {
-    this.getElement().querySelector(`.event__reset-btn`).textContent = NotificationText.DELETING;
-  }
-  removeNotificationAboutDeleting() {
-    if (this._mode === Mode.ADDING) {
-      this.getElement().querySelector(`.event__reset-btn`).textContent = DefaultButtonText.CANCEL;
-    } else {
-      this.getElement().querySelector(`.event__reset-btn`).textContent = DefaultButtonText.DELETE;
-    }
-  }
-  checkForErrors() {
-    return this._didErrorOccur;
-  }
-  addErrorStyle() {
-    this.getElement().classList.add(`error`);
-    this._didErrorOccur = true;
-  }
-  removeErrorStyle() {
-    this.getElement().classList.remove(`error`);
-    this._didErrorOccur = false;
-  }
+
 }

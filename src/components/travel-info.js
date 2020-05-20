@@ -1,5 +1,5 @@
 import {formatDatePeriod} from "../utils/common.js";
-import AbstractComponent from "./abstract-component.js";
+import AbstractSmartComponent from "./abstract-smart-component.js";
 import {sortTravelPoints} from "../controllers/trip-controller.js";
 import {SortType} from "../components/sorting.js";
 
@@ -26,18 +26,16 @@ const createTravelInfoTemplate = (points) => {
   const pointsInfo = getPointsInfo(sortedPoints);
   const datePeriodInfo = getDatePeriodInfo(sortedPoints);
   return (
-    `<section class="trip-main__trip-info  trip-info">
-            <div class="trip-info__main">
+    `<div class="trip-info__main">
               <h1 class="trip-info__title">${pointsInfo}</h1>
 
               <p class="trip-info__dates">${datePeriodInfo}</p>
             </div>
-
-     </section>`
+      `
   );
 };
 
-export default class TravelInfo extends AbstractComponent {
+export default class TravelInfo extends AbstractSmartComponent {
   constructor(pointsModel) {
     super();
 
@@ -48,10 +46,12 @@ export default class TravelInfo extends AbstractComponent {
     return createTravelInfoTemplate(this._travelPoints);
   }
   updatePoints(travelPoints) {
-    this._travelPoints = travelPoints;
-    const sortedPoints = this._travelPoints.slice();
+    const sortedPoints = travelPoints.slice();
     sortTravelPoints(SortType.EVENT, sortedPoints);
-    this.getElement().querySelector(`.trip-info__title`).innerHTML = getPointsInfo(sortedPoints);
-    this.getElement().querySelector(`.trip-info__dates`).innerHTML = getDatePeriodInfo(sortedPoints);
+    this._travelPoints = sortedPoints;
+
+
+    this.rerender();
   }
+  recoveryListeners() {}
 }

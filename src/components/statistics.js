@@ -4,6 +4,29 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import {calculateTotalCost} from "./travel-cost.js";
 import {findCorrectPrepostion} from "../utils/common.js";
 
+const ChartOptions = {
+  TYPE: `horizontalBar`,
+  TITLE_TEXTS: [`MONEY`, `TRANSPORT`, `TIMESPENT`],
+  DATASETS_ANCHOR: `start`,
+  DATALABELS_ANCHOR: `end`,
+  ALIGN: `start`,
+  BAR_THICKNESS: 44,
+  MIN_BAR_LENGTH: 50,
+  LABELS_FONT_SIZE: 13,
+  TITLE_FONT_SIZE: 23,
+  TICKS_FONT_SIZE: 13,
+  PADDING: 5,
+  FONT_COLOR: `#000000`,
+  BACKGROUND_COLOR: `#ffffff`,
+  POSITION: `left,`,
+  TITLE_DISPLAY: true,
+  OTHER_DISPLAY: false,
+  DRAW_BORDER: false,
+  BEGIN_AT_ZERO: true,
+  TOOLTIPS_ENABLED: false,
+
+};
+
 const emojiMap = {
   taxi: `🚕`,
   bus: `🚌`,
@@ -17,6 +40,11 @@ const emojiMap = {
   restaurant: `🍴`,
 
 };
+
+const millisecondsToHours = (time) => {
+  return Math.floor(time / 1000 / 60 / 60);
+};
+
 
 const getAllDifferentTypes = (travelPoints) => {
   let defferentTypes = [];
@@ -92,65 +120,65 @@ const renderMoneyChart = (moneyCtx, travelPoints) => {
 
   return new Chart(moneyCtx, {
     plugins: [ChartDataLabels],
-    type: `horizontalBar`,
+    type: ChartOptions.TYPE,
     data: {
       labels,
       datasets: [{
         data: sortedPrices,
-        backgroundColor: `#ffffff`,
-        hoverBackgroundColor: `#ffffff`,
-        anchor: `start`,
-        barThickness: 44,
-        minBarLength: 50,
+        backgroundColor: ChartOptions.BACKGROUND_COLOR,
+        hoverBackgroundColor: ChartOptions.BACKGROUND_COLOR,
+        anchor: ChartOptions.DATASETS_ANCHOR,
+        barThickness: ChartOptions.BAR_THICKNESS,
+        minBarLength: ChartOptions.MIN_BAR_LENGTH,
       }]
     },
     options: {
       plugins: {
         datalabels: {
           font: {
-            size: 13
+            size: ChartOptions.LABELS_FONT_SIZE
           },
-          color: `#000000`,
-          anchor: `end`,
-          align: `start`,
+          color: ChartOptions.FONT_COLOR,
+          anchor: ChartOptions.DATALABELS_ANCHOR,
+          align: ChartOptions.ALIGN,
           formatter: (val) => `€ ${val}`
         }
       },
       title: {
-        display: true,
-        text: `MONEY`,
-        fontColor: `#000000`,
-        fontSize: 23,
-        position: `left`
+        display: ChartOptions.TITLE_DISPLAY,
+        text: ChartOptions.TITLE_TEXTS[0],
+        fontColor: ChartOptions.FONT_COLOR,
+        fontSize: ChartOptions.TITLE_FONT_SIZE,
+        position: ChartOptions.POSITION,
       },
       scales: {
         yAxes: [{
           ticks: {
-            fontColor: `#000000`,
-            padding: 5,
-            fontSize: 13,
+            fontColor: ChartOptions.FONT_COLOR,
+            padding: ChartOptions.PADDING,
+            fontSize: ChartOptions.TICKS_FONT_SIZE,
           },
           gridLines: {
-            display: false,
-            drawBorder: false
+            display: ChartOptions.OTHER_DISPLAY,
+            drawBorder: ChartOptions.DRAW_BORDER
           },
         }],
         xAxes: [{
           ticks: {
-            display: false,
-            beginAtZero: true,
+            display: ChartOptions.OTHER_DISPLAY,
+            beginAtZero: ChartOptions.BEGIN_AT_ZERO,
           },
           gridLines: {
-            display: false,
-            drawBorder: false
+            display: ChartOptions.OTHER_DISPLAY,
+            drawBorder: ChartOptions.DRAW_BORDER
           },
         }],
       },
       legend: {
-        display: false
+        display: ChartOptions.OTHER_DISPLAY
       },
       tooltips: {
-        enabled: false,
+        enabled: ChartOptions.TOOLTIPS_ENABLED,
       }
     }
   });
@@ -178,65 +206,65 @@ const renderTransportChart = (transportCtx, travelPoints) => {
 
   return new Chart(transportCtx, {
     plugins: [ChartDataLabels],
-    type: `horizontalBar`,
+    type: ChartOptions.TYPE,
     data: {
       labels,
       datasets: [{
         data: sortedNumberOfRepetitions,
-        backgroundColor: `#ffffff`,
-        hoverBackgroundColor: `#ffffff`,
-        anchor: `start`,
-        barThickness: 44,
-        minBarLength: 50,
+        backgroundColor: ChartOptions.BACKGROUND_COLOR,
+        hoverBackgroundColor: ChartOptions.BACKGROUND_COLOR,
+        anchor: ChartOptions.DATASETS_ANCHOR,
+        barThickness: ChartOptions.BAR_THICKNESS,
+        minBarLength: ChartOptions.MIN_BAR_LENGTH,
       }]
     },
     options: {
       plugins: {
         datalabels: {
           font: {
-            size: 13
+            size: ChartOptions.LABELS_FONT_SIZE
           },
-          color: `#000000`,
-          anchor: `end`,
-          align: `start`,
+          color: ChartOptions.FONT_COLOR,
+          anchor: ChartOptions.DATALABELS_ANCHOR,
+          align: ChartOptions.ALIGN,
           formatter: (val) => `${val}x`
         }
       },
       title: {
-        display: true,
-        text: `TRANSPORT`,
-        fontColor: `#000000`,
-        fontSize: 23,
-        position: `left`
+        display: ChartOptions.TITLE_DISPLAY,
+        text: ChartOptions.TITLE_TEXTS[1],
+        fontColor: ChartOptions.FONT_COLOR,
+        fontSize: ChartOptions.TITLE_FONT_SIZE,
+        position: ChartOptions.POSITION,
       },
       scales: {
         yAxes: [{
           ticks: {
-            fontColor: `#000000`,
-            padding: 5,
-            fontSize: 13,
+            fontColor: ChartOptions.FONT_COLOR,
+            padding: ChartOptions.PADDING,
+            fontSize: ChartOptions.TICKS_FONT_SIZE,
           },
           gridLines: {
-            display: false,
-            drawBorder: false
+            display: ChartOptions.OTHER_DISPLAY,
+            drawBorder: ChartOptions.DRAW_BORDER
           },
         }],
         xAxes: [{
           ticks: {
-            display: false,
-            beginAtZero: true,
+            display: ChartOptions.OTHER_DISPLAY,
+            beginAtZero: ChartOptions.BEGIN_AT_ZERO,
           },
           gridLines: {
-            display: false,
-            drawBorder: false
+            display: ChartOptions.OTHER_DISPLAY,
+            drawBorder: ChartOptions.DRAW_BORDER
           },
         }],
       },
       legend: {
-        display: false
+        display: ChartOptions.OTHER_DISPLAY
       },
       tooltips: {
-        enabled: false,
+        enabled: ChartOptions.TOOLTIPS_ENABLED,
       }
     }
   });
@@ -258,65 +286,65 @@ const renderTimeChart = (timeCtx, travelPoints) => {
 
   return new Chart(timeCtx, {
     plugins: [ChartDataLabels],
-    type: `horizontalBar`,
+    type: ChartOptions.TYPE,
     data: {
       labels,
       datasets: [{
         data: totalTimeSpend,
-        backgroundColor: `#ffffff`,
-        hoverBackgroundColor: `#ffffff`,
-        anchor: `start`
+        backgroundColor: ChartOptions.BACKGROUND_COLOR,
+        hoverBackgroundColor: ChartOptions.BACKGROUND_COLOR,
+        anchor: ChartOptions.DATASETS_ANCHOR,
+        barThickness: ChartOptions.BAR_THICKNESS,
+        minBarLength: ChartOptions.MIN_BAR_LENGTH,
       }]
     },
     options: {
       plugins: {
         datalabels: {
           font: {
-            size: 13
+            size: ChartOptions.LABELS_FONT_SIZE
           },
-          color: `#000000`,
-          anchor: `end`,
-          align: `start`,
-          formatter: (val) => `${Math.floor((val / 1000 / 60 / 60))}H`
+          color: ChartOptions.FONT_COLOR,
+          anchor: ChartOptions.DATALABELS_ANCHOR,
+          align: ChartOptions.ALIGN,
+          formatter: (val) => `${millisecondsToHours(val)}H`
         }
       },
       title: {
-        display: true,
-        text: `TIME SPENT`,
-        fontColor: `#000000`,
-        fontSize: 23,
-        position: `left`,
-        barThickness: 44,
-        minBarLength: 50,
+        display: ChartOptions.TITLE_DISPLAY,
+        text: ChartOptions.TITLE_TEXTS[2],
+        fontColor: ChartOptions.FONT_COLOR,
+        fontSize: ChartOptions.TITLE_FONT_SIZE,
+        position: ChartOptions.POSITION,
       },
       scales: {
         yAxes: [{
           ticks: {
-            fontColor: `#000000`,
-            padding: 5,
-            fontSize: 13,
+            fontColor: ChartOptions.FONT_COLOR,
+            padding: ChartOptions.PADDING,
+            fontSize: ChartOptions.TICKS_FONT_SIZE,
           },
           gridLines: {
-            display: false,
-            drawBorder: false
+            display: ChartOptions.OTHER_DISPLAY,
+            drawBorder: ChartOptions.DRAW_BORDER
           },
         }],
         xAxes: [{
           ticks: {
-            display: false,
-            beginAtZero: true,
+            display: ChartOptions.OTHER_DISPLAY,
+            beginAtZero: ChartOptions.BEGIN_AT_ZERO,
           },
           gridLines: {
-            display: false,
-            drawBorder: false
+            display: ChartOptions.OTHER_DISPLAY,
+            drawBorder: ChartOptions.DRAW_BORDER
           },
         }],
       },
       legend: {
-        display: false
+        display: ChartOptions.OTHER_DISPLAY
       },
       tooltips: {
-        enabled: false,
+        enabled: ChartOptions.TOOLTIPS_ENABLED,
       }
     }
   });
@@ -366,13 +394,22 @@ export default class Statistics extends AbstractSmartComponent {
     const timeSpendCtx = element.querySelector(`.statistics__chart--time`);
 
     const BAR_HEIGHT = 55;
-    moneyCtx.height = BAR_HEIGHT * 8;
-    transportCtx.height = BAR_HEIGHT * 8;
-    timeSpendCtx.height = BAR_HEIGHT * 16;
+
+    const MONEY_CHART_HEIGHT_COEFFICIENT = 8;
+    const TRANSPORT_CHART_HEIGHT_COEFFICIENT = 8;
+    const TIMESPEND_CHART_HEIGHT_COEFFICIENT = 16;
+
+    moneyCtx.height = BAR_HEIGHT * MONEY_CHART_HEIGHT_COEFFICIENT;
+    transportCtx.height = BAR_HEIGHT * TRANSPORT_CHART_HEIGHT_COEFFICIENT;
+    timeSpendCtx.height = BAR_HEIGHT * TIMESPEND_CHART_HEIGHT_COEFFICIENT;
 
     this._moneyChart = renderMoneyChart(moneyCtx, this._pointsModel.getAllPoints());
     this._transportChart = renderTransportChart(transportCtx, this._pointsModel.getAllPoints());
     this._timeChart = renderTimeChart(timeSpendCtx, this._pointsModel.getAllPoints());
+  }
+  _onDataChange() {
+    this.rerender();
+    this.hide();
   }
   rerender() {
     super.rerender();
@@ -380,9 +417,5 @@ export default class Statistics extends AbstractSmartComponent {
 
   }
   recoveryListeners() {}
-  _onDataChange() {
-    this.rerender();
-    this.hide();
-  }
 
 }

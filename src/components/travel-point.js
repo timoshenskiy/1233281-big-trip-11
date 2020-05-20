@@ -54,7 +54,7 @@ const createTravelPointTemplate = (travelPoint) => {
                     <button class="event__rollup-btn" type="button">
                       <span class="visually-hidden">Open event</span>
                     </button>
-                    
+
                   </div>
                 </li>`
   );
@@ -73,5 +73,11 @@ export default class TravelPoint extends AbstractComponent {
   setEditButtonClickHandler(handler) {
     this.getElement().querySelector(`button`)
       .addEventListener(`click`, handler);
+  }
+  disableEditButton() {
+    this.getElement().querySelector(`.event__rollup-btn`).disabled = true;
+  }
+  enableEditButton() {
+    this.getElement().querySelector(`.event__rollup-btn`).disabled = false;
   }
 }

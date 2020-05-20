@@ -26,6 +26,16 @@ export default class SiteMenu extends AbstractComponent {
   getTemplate() {
     return createSiteMenuTemplate();
   }
+  getCurrentTab() {
+    return this._currentTab;
+  }
+  _toggleCurrentTab() {
+    if (this._currentTab === SiteTabs.TABLE) {
+      this._currentTab = SiteTabs.STATS;
+    } else {
+      this._currentTab = SiteTabs.TABLE;
+    }
+  }
   setTableButtonClickHandler(handler) {
     this.getElement().querySelector(`.trip-controls__trip-tabs`).addEventListener(`click`, (evt)=>{
       if (evt.target.classList.contains(`trip-tabs__btn--active`)) {
@@ -37,16 +47,6 @@ export default class SiteMenu extends AbstractComponent {
 
       handler();
     });
-  }
-  _toggleCurrentTab() {
-    if (this._currentTab === SiteTabs.TABLE) {
-      this._currentTab = SiteTabs.STATS;
-    } else {
-      this._currentTab = SiteTabs.TABLE;
-    }
-  }
-  getCurrentTab() {
-    return this._currentTab;
   }
 
 }
