@@ -40,9 +40,10 @@ const emojiMap = {
   restaurant: `🍴`,
 
 };
+const MILLISECONDS_PER_HOUR = 3600000;
 
 const millisecondsToHours = (time) => {
-  return Math.floor(time / 1000 / 60 / 60);
+  return Math.floor(time / MILLISECONDS_PER_HOUR);
 };
 
 
