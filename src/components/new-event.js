@@ -10,20 +10,20 @@ export default class NewEvent extends AbstractComponent {
   constructor() {
     super();
 
-    this._newEventHandler = null;
+    this._newEventButtonClickHandler = null;
   }
   getTemplate() {
     return createEmptyPointListTemplate();
   }
   setDisabled() {
     this.getElement().disabled = true;
-    this.getElement().removeEventListener(`click`, this._newEventHandler);
+    this.getElement().removeEventListener(`click`, this._newEventButtonClickHandler);
   }
   setEnabled() {
     this.getElement().disabled = false;
   }
   setNewEventButtonClickHandler(handler) {
     this.getElement().addEventListener(`click`, handler);
-    this._newEventHandler = handler;
+    this._newEventButtonClickHandler = handler;
   }
 }
