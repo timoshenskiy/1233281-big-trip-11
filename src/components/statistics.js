@@ -407,15 +407,15 @@ export default class Statistics extends AbstractSmartComponent {
     this._transportChart = renderTransportChart(transportCtx, this._pointsModel.getAllPoints());
     this._timeChart = renderTimeChart(timeSpendCtx, this._pointsModel.getAllPoints());
   }
+  _onDataChange() {
+    this.rerender();
+    this.hide();
+  }
   rerender() {
     super.rerender();
     this._renderCharts();
 
   }
   recoveryListeners() {}
-  _onDataChange() {
-    this.rerender();
-    this.hide();
-  }
 
 }

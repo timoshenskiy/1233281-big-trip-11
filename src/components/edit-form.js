@@ -242,6 +242,77 @@ export default class EditForm extends AbstractSmartComponent {
 
     this.rerender();
   }
+  getData() {
+    const form = this.getElement();
+    return {
+      id: this._travelPoint.id,
+      isFavorite: this._travelPoint.isFavorite,
+      formData: new FormData(form),
+    };
+  }
+  showNotificationAboutSaving() {
+    this.getElement().querySelector(`.event__save-btn`).textContent = NotificationText.SAVING;
+  }
+  removeNotificationAboutSaving() {
+    this.getElement().querySelector(`.event__save-btn`).textContent = DefaultButtonText.SAVE;
+  }
+  showNotificationAboutDeleting() {
+    this.getElement().querySelector(`.event__reset-btn`).textContent = NotificationText.DELETING;
+  }
+  removeNotificationAboutDeleting() {
+    if (this._mode === Mode.ADDING) {
+      this.getElement().querySelector(`.event__reset-btn`).textContent = DefaultButtonText.CANCEL;
+    } else {
+      this.getElement().querySelector(`.event__reset-btn`).textContent = DefaultButtonText.DELETE;
+    }
+  }
+  checkForErrors() {
+    return this._didErrorOccur;
+  }
+  addErrorStyle() {
+    this.getElement().classList.add(`error`);
+    this._didErrorOccur = true;
+  }
+  removeErrorStyle() {
+    this.getElement().classList.remove(`error`);
+    this._didErrorOccur = false;
+  }
+  toggleFavoriteState() {
+    const favoriteButton = this.getElement().querySelector(`.event__favorite-checkbox`);
+    favoriteButton.checked = !favoriteButton.checked;
+  }
+  blockForm() {
+    this.getElement().querySelectorAll(`button`).forEach((it) => {
+      it.disabled = true;
+    });
+    this.getElement().querySelectorAll(`input`).forEach((it) => {
+      it.disabled = true;
+    });
+  }
+  unblockForm() {
+    this.getElement().querySelectorAll(`button`).forEach((it) => {
+      it.disabled = false;
+    });
+    this.getElement().querySelectorAll(`input`).forEach((it) => {
+      it.disabled = false;
+    });
+  }
+  recoveryListeners() {
+    this.setEditCloseButtonClickHandler(this._editCloseHandler);
+    this.setSubmitHandler(this._submitHandler);
+    this.setDeleteButtonClickHandler(this._deleteHandler);
+    this.setFavoritesButtonClickHandler(this._favoritesHandler);
+    this._subscribeOnEvents();
+
+  }
+  removeFlatpickr() {
+    this._flatpickrDeparture.destroy();
+    this._flatpickrDeparture = null;
+
+    this._flatpickrArrival.destroy();
+    this._flatpickrArrival = null;
+
+  }
   _applyFlatpickr() {
     if (this._flatpickrDeparture) {
       this._flatpickrDeparture.destroy();
@@ -292,14 +363,7 @@ export default class EditForm extends AbstractSmartComponent {
     });
 
   }
-  recoveryListeners() {
-    this.setEditCloseButtonClickHandler(this._editCloseHandler);
-    this.setSubmitHandler(this._submitHandler);
-    this.setDeleteButtonClickHandler(this._deleteHandler);
-    this.setFavoritesButtonClickHandler(this._favoritesHandler);
-    this._subscribeOnEvents();
 
-  }
   _subscribeOnEvents() {
     const element = this.getElement();
     const labels = element.querySelectorAll(`.event__type-label`);
@@ -361,67 +425,5 @@ export default class EditForm extends AbstractSmartComponent {
 
     this._deleteHandler = handler;
   }
-  getData() {
-    const form = this.getElement();
-    return {
-      id: this._travelPoint.id,
-      isFavorite: this._travelPoint.isFavorite,
-      formData: new FormData(form),
-    };
-  }
-  showNotificationAboutSaving() {
-    this.getElement().querySelector(`.event__save-btn`).textContent = NotificationText.SAVING;
-  }
-  removeNotificationAboutSaving() {
-    this.getElement().querySelector(`.event__save-btn`).textContent = DefaultButtonText.SAVE;
-  }
-  showNotificationAboutDeleting() {
-    this.getElement().querySelector(`.event__reset-btn`).textContent = NotificationText.DELETING;
-  }
-  removeNotificationAboutDeleting() {
-    if (this._mode === Mode.ADDING) {
-      this.getElement().querySelector(`.event__reset-btn`).textContent = DefaultButtonText.CANCEL;
-    } else {
-      this.getElement().querySelector(`.event__reset-btn`).textContent = DefaultButtonText.DELETE;
-    }
-  }
-  checkForErrors() {
-    return this._didErrorOccur;
-  }
-  addErrorStyle() {
-    this.getElement().classList.add(`error`);
-    this._didErrorOccur = true;
-  }
-  removeErrorStyle() {
-    this.getElement().classList.remove(`error`);
-    this._didErrorOccur = false;
-  }
-  toggleFavoriteState() {
-    const favoriteButton = this.getElement().querySelector(`.event__favorite-checkbox`);
-    favoriteButton.checked = !favoriteButton.checked;
-  }
-  blockForm() {
-    this.getElement().querySelectorAll(`button`).forEach((it) => {
-      it.disabled = true;
-    });
-    this.getElement().querySelectorAll(`input`).forEach((it) => {
-      it.disabled = true;
-    });
-  }
-  unblockForm() {
-    this.getElement().querySelectorAll(`button`).forEach((it) => {
-      it.disabled = false;
-    });
-    this.getElement().querySelectorAll(`input`).forEach((it) => {
-      it.disabled = false;
-    });
-  }
-  removeFlatpickr() {
-    this._flatpickrDeparture.destroy();
-    this._flatpickrDeparture = null;
 
-    this._flatpickrArrival.destroy();
-    this._flatpickrArrival = null;
-
-  }
 }
